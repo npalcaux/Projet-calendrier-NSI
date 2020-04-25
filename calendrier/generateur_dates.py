@@ -30,11 +30,11 @@ class JoursSemaine(Enum):
     SAMEDI = 5
     DIMANCHE = 6
 
-    def reste_semaine(self, semaine_complete: bool = False) -> List['JoursSemaine']:
+    def fin_semaine(self, semaine_complete: bool = False) -> List['JoursSemaine']:
         rest_semaine = [j for j in JoursSemaine if j.value >= self.value]
         return [None for _ in range(self.value)] + rest_semaine if semaine_complete else rest_semaine
 
-    def suivant(self) -> 'JoursSemaine':
+    def jour_suivant(self) -> 'JoursSemaine':
         if self.value == 6:
             return JoursSemaine.LUNDI
         else:
@@ -59,11 +59,11 @@ class Annee:
         janv = self.__calculer_jour_semaine_prem_janv()
         self.liste_mois: List[Mois] = [Mois(0, self.__calcul_jours_mois(0), JoursSemaine(janv))]
 
-        prev_mois = self.liste_mois[0]
-        for i in range (1, 12):
-            mois = Mois(i, self.__calcul_jours_mois(i), JoursSemaine(prev_mois.last_day().jour_sem.suivant()))
+        mois_precedent = self.liste_mois[0]
+        for i in range(1, 12):
+            mois = Mois(i, self.__calcul_jours_mois(i), JoursSemaine(mois_precedent.dernier_jour_du_mois().jour_sem.jour_suivant()))
             self.liste_mois.append(mois)
-            prev_mois = mois
+            mois_precedent = mois
 
     def __calculer_jour_semaine_prem_janv(self):
         d = date(self.annee, 1, 1)
@@ -92,7 +92,7 @@ class Semaine:
     def __remplir_jours(self, jour_mois_start, jour_mois_fin, jour_semaine_start: JoursSemaine):
         jour_mois = jour_mois_start
 
-        for jour_semaine in jour_semaine_start.reste_semaine():
+        for jour_semaine in jour_semaine_start.fin_semaine():
             if jour_mois > jour_mois_fin:
                 break
 
@@ -126,7 +126,7 @@ class Mois:
             self.semaines.append(s)
             jour_semaine_start = JoursSemaine.LUNDI
 
-    def last_day(self) -> Jour:
+    def dernier_jour_du_mois(self) -> Jour:
         return self.semaines[-1].last_day()
 
     def __str__(self) -> str:

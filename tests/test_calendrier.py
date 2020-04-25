@@ -16,7 +16,7 @@ class TestCalendrierMethods(unittest.TestCase):
         s = Semaine(jour_semaine_start=JoursSemaine.MERCREDI, jour_mois_start=10)
 
         self.assertEqual(7, len(s.jours), 'Trop ou trop peu de jours')
-        self.assertEqual(JoursSemaine.MERCREDI.reste_semaine(semaine_complete=True), [j.jour_sem if j else None for j in s.jours])
+        self.assertEqual(JoursSemaine.MERCREDI.fin_semaine(semaine_complete=True), [j.jour_sem if j else None for j in s.jours])
         self.assertEqual([None, None, 10, 11, 12, 13, 14], [j.jour_mois if j else None for j in s.jours])
 
         self.assertEqual([JoursSemaine.LUNDI, JoursSemaine.MARDI, JoursSemaine.MERCREDI, None, None, None, None], [j.jour_mois if j else None for j in s0.jours])

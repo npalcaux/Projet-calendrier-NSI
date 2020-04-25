@@ -136,4 +136,7 @@ class Couleur(Enum):
     BLANC = (255,255,255),
     NOIR = (0,0,0)
 
+    def format_rgb(self):
+        return self.value[0]
+
 COULEUR_PAR_DEFAUT = Couleur.NOIR

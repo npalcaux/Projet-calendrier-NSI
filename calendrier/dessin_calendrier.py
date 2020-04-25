@@ -31,7 +31,7 @@ def dessiner_jour(jour_str: str, p: Point, drawer: ImageDraw, police: ImageFont,
     # On demande à PIL d'écrire le chiffre correspondant au jour du mois passé en paramètres sur l'image au point p.
     # Rmq: Nous transformons préalablement le point en Tuple car la librairie PIL ne comprends pas nos objets de type Point
     ptxt = (p.x + (TAILLE_CASE_JOUR.largeur - calculer_taille_texte(jour_str, police).largeur) // 2, p.y)
-    drawer.text(ptxt, jour_str, fill=couleur.value[0], font=police)
+    drawer.text(ptxt, jour_str, fill=couleur.format_rgb(), font=police)
 
 
 def dessiner_jour_entete(j: str, p: Point, canevas: Image, police: ImageFont, couleur: Couleur = Couleur.NOIR):
@@ -48,7 +48,7 @@ def dessiner_jour_entete(j: str, p: Point, canevas: Image, police: ImageFont, co
     # On demande à PIL d'écrire le chiffre correspondant au jour du mois passé en paramètres sur l'image au point p.
     # Rmq: Nous transformons préalablement le point en Tuple car la librairie PIL ne comprends pas nos objets de type Point
     ptxt = (p.x + (TAILLE_CASE_JOUR.largeur - calculer_taille_texte(j, police)) // 2, p.y)
-    drawer.text(ptxt, j, fill=couleur.value[0], font=police)
+    drawer.text(ptxt, j, fill=couleur.format_rgb(), font=police)
 
 
 def dessiner_semaines(m: Mois, point_insertion: Point, drawer: ImageDraw, police: ImageFont):
@@ -76,7 +76,7 @@ def dessiner_canevas(taille: Dimensions, CouleurFond: Couleur = Couleur.BLANC) -
     """
     Création de l’image au format 'rgb' avec la couleur de fond passé en parametre
     """
-    im = Image.new('RGB', taille.to_tuple(), CouleurFond.value[0])
+    im = Image.new('RGB', taille.to_tuple(), CouleurFond.format_rgb())
     return im
 # RGB pour dire à PIL qu'on veut une image en couleurs.
 
@@ -103,7 +103,7 @@ def dessiner_ligne_lmmjvsd(p, drawer: ImageDraw):
 
 
 def dessiner_separateur(point_insertion: Point, largeur: int, drawer: ImageDraw):
-    drawer.line([point_insertion.to_tuple(), point_insertion.deplacer_x(largeur).to_tuple()], fill=Couleur.BLEU.value[0], width=2)
+    drawer.line([point_insertion.to_tuple(), point_insertion.deplacer_x(largeur).to_tuple()], fill=Couleur.BLEU.format_rgb(), width=2)
 
 
 def dessiner_calendrier(annee: Annee):
