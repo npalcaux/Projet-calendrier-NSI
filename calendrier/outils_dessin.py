@@ -66,6 +66,9 @@ class Dimensions:
     def to_tuple(self):
         return self.largeur, self.hauteur
 
+    def empiler(self, autre: 'Dimensions') -> 'Dimensions':
+        return Dimensions(max(self.largeur, autre.largeur), self.hauteur + autre.hauteur)
+
 
 def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
     """
@@ -121,6 +124,11 @@ def sauvegarde_image(image: Image, fichier='calendrier.png'):
     # enregistrement de l’image finale dans un fichier
     image.save(fichier)
 
+
+def taille_semaines(mois: Mois) -> Dimensions:
+    return Dimensions(TAILLE_SEMAINE.largeur, TAILLE_SEMAINE.hauteur * len(mois.semaines))
+
+
 ##########################################
 #               CONSTANTES               #
 ##########################################
@@ -134,6 +142,7 @@ POLICE_NOM_MOIS = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILL
 
 TAILLE_CASE_JOUR = calculer_taille_jour()
 TAILLE_SEMAINE = calculer_taille_semaine()
+TAILLE_ENTETE_JOURS_SEMAINE = calculer_taille_entete_lmmjvsd()
 TAILLE_ENTETE_MOIS = calculer_taille_entete_mois()
 
 class Couleur(Enum):
@@ -147,3 +156,9 @@ class Couleur(Enum):
         return self.value[0]
 
 COULEUR_PAR_DEFAUT = Couleur.NOIR
+
+TABLEAU_CORRESPONDENCE_MOIS_FOND = [
+    "janvier.jpg", "fevrier.png", "mars.jpg", "janvier.jpg",
+    "janvier.jpg", "janvier.jpg", "janvier.jpg", "janvier.jpg",
+    "janvier.jpg", "janvier.jpg", "janvier.jpg", "decembre.jpg",
+]

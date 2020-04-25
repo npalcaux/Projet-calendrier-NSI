@@ -107,13 +107,20 @@ def dessiner_separateur(point_insertion: Point, longueur_separateur: int, drawer
 
 
 def generer_image_mois_pour_annee(annee: Annee):
+def generer_images_mois_pour_annee(annee: Annee):
     for mois in annee.liste_mois:
         canevas = dessiner_canevas(calculer_taille_image_du_mois(mois))
+        taille_canevas = calculer_taille_image_du_mois(mois)
+        canevas = dessiner_canevas(taille_canevas)
+
+        back_im = Image.open(os.path.join('image_fond', TABLEAU_CORRESPONDENCE_MOIS_FOND[mois.no_mois]))
+        resize = back_im.resize(taille_semaines(mois).empiler(TAILLE_ENTETE_JOURS_SEMAINE).to_tuple())
+        canevas.paste(resize, (0, TAILLE_ENTETE_MOIS.hauteur))
 
         origine = Point(x=0, y=0)
         name = dessiner_mois(canevas, mois, origine)
 
-        sauvegarde_image(canevas, fichier=f"mois_calendrier{os.sep}{name}.jpeg")
+        sauvegarde_image(canevas, fichier=os.path.join("mois_calendrier", f"{name}.jpeg"))
 
 
 def dessiner_mois(canevas, mois, origine):
@@ -126,8 +133,3 @@ def dessiner_mois(canevas, mois, origine):
     point_insertion_semaines = origine.deplacer_y(TAILLE_CASE_JOUR).deplacer_y(TAILLE_ENTETE_MOIS)
     dessiner_semaines(mois, point_insertion_semaines, drawer, POLICE_JOUR)
     return name
-
-
-if __name__ == '__main__':
-    a = Annee(2011)
-    generer_image_mois_pour_annee(a)

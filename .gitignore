@@ -10,3 +10,5 @@
 /mois_calendrier/NOVEMBRE.jpeg
 /mois_calendrier/OCTOBRE.jpeg
 /mois_calendrier/SEPTEMBRE.jpeg
+.idea/
+calendrier/__pycache__/

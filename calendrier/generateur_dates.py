@@ -61,7 +61,10 @@ class Annee:
 
         mois_precedent = self.liste_mois[0]
         for i in range(1, 12):
-            mois = Mois(i, self.__calcul_jours_mois(i), JoursSemaine(mois_precedent.dernier_jour_du_mois().jour_sem.jour_suivant()))
+            jour_sem_premier_jour_mois = JoursSemaine(mois_precedent.dernier_jour_du_mois().jour_sem.jour_suivant())
+            nombre_jour_dans_le_mois = self.__calcul_jours_mois(i)
+            mois = Mois(i, nombre_jour_dans_le_mois, jour_sem_premier_jour_mois)
+
             self.liste_mois.append(mois)
             mois_precedent = mois
 
@@ -69,18 +72,17 @@ class Annee:
         d = date(self.annee, 1, 1)
         return d.weekday()
 
-    def __calcul_jours_mois(self, ordre0: int) -> int:
-        ordre = ordre0 + 1
-        if ordre in (1, 3, 5, 7, 8, 10, 12):
-            return 31
-        elif ordre == 2:
-            return 29 if self.__est_anne_bisextile() else 28
-        else:
-            return 30
-
     def __est_anne_bisextile(self):
         return self.annee % 4 == 0
 
+    def __calcul_jours_mois(self, numero_mois0: int) -> int:
+        nummero_mois = numero_mois0 + 1
+        if nummero_mois in (1, 3, 5, 7, 8, 10, 12):
+            return 31
+        elif nummero_mois == 2:
+            return 29 if self.__est_anne_bisextile() else 28
+        else:
+            return 30
 
 class Semaine:
     def __init__(self, jour_semaine_start: JoursSemaine = JoursSemaine.LUNDI, jour_mois_start:int = 1, dernier_jour_du_mois:int = 31) -> None:
@@ -131,17 +133,3 @@ class Mois:
     def __str__(self) -> str:
         return ", ".join([f"{j} {self.no_mois}" for j in self.semaines])
 
-
-if __name__ == '__main__':
-    sem = Mois(2, 29, JoursSemaine.MARDI)
-    for s in sem.semaines:
-        print([str(j) for j in s.jours])
-
-    print("---------------------------------")
-
-    sem = Mois(3, 31, JoursSemaine.JEUDI)
-    for s in sem.semaines:
-        print([str(j) for j in s.jours])
-
-    a = Annee(2014)
-    print(a)
