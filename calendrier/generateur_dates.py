@@ -49,6 +49,9 @@ class Jour:
     def __str__(self) -> str:
         return f"{self.jour_sem} {self.jour_mois}"
 
+    def est_dimanche(self):
+        return self.jour_sem == JoursSemaine.DIMANCHE
+
 
 class Annee:
     def __init__(self, annee: int):

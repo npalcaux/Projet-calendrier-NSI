@@ -3,24 +3,11 @@ from typing import Tuple
 
 from PIL import ImageFont, Image
 
-def poucentage(ref: int, pourcentage: int) -> int:
-    return int(ref * (1 + pourcentage/100))
-
-TAILLE_POLICE_JOURS = 25
-TAILLE_POLICE_JOURS_SEMAINE = poucentage(TAILLE_POLICE_JOURS, 15)
-TAILLE_POLICE_NOM_MOIS = poucentage(TAILLE_POLICE_JOURS, 40)
-
-POLICE_JOUR = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS)
-POLICE_JOURS_SEMAINE = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS_SEMAINE)
-POLICE_NOM_MOIS = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_NOM_MOIS)
+from calendrier.generateur_dates import Mois
 
 
-class Couleur(Enum):
-    ROUGE = (255,0,0),
-    VERT = (0,255,0),
-    BLEU = (0,0,255),
-    BLANC = (255,255,255),
-    NOIR = (0,0,0)
+def agrandissement_relatif(pourcentage: int, reference: int) -> int:
+    return int(reference * (1 + pourcentage / 100))
 
 
 class Point:
@@ -86,32 +73,35 @@ def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
 
 
 def calculer_taille_jour() -> Dimensions:
-    return calculer_taille_texte("00", POLICE_JOUR) + Dimensions(10, 10)
+    """
+    Calcule la taille de la case "jour" du calendrier
+    On la dimenssione sur la base de la taille de la police
+    utilisé pour l'affichege des jours de semaine (plus grande)
+    :return: la taille d'in case jour
+    """
+    return calculer_taille_texte("00", POLICE_JOURS_SEMAINE) + Dimensions(10, 10)
 
 
-TAILLE_JOUR = calculer_taille_jour()
-
-
-def calculer_taille_mois() -> Dimensions:
-    return TAILLE_JOUR * Dimensions(7, 7)
-
-
-TAILLE_MOIS = calculer_taille_mois()
+def calculer_taille_semaine() -> Dimensions:
+    return calculer_taille_jour() * Dimensions(7, 1)
 
 
 def calculer_taille_entete_mois() -> Dimensions:
-    nom_mois = calculer_taille_texte("9999", POLICE_NOM_MOIS)
-    return Dimensions(largeur=TAILLE_MOIS.largeur, hauteur=nom_mois.hauteur)
-
-TAILLE_ENTETE_MOIS = calculer_taille_entete_mois()
+    nom_mois = calculer_taille_texte("JANVIER", POLICE_NOM_MOIS)
+    return Dimensions(largeur=TAILLE_SEMAINE.largeur, hauteur=nom_mois.hauteur)
 
 
-def calculer_taille_canevas():
-    return Dimensions(
-        largeur=TAILLE_MOIS.largeur,
-        hauteur=TAILLE_MOIS.hauteur + TAILLE_ENTETE_MOIS.hauteur)
+def calculer_taille_entete_lmmjvsd() -> Dimensions:
+    entete_jours_semaine = calculer_taille_texte("L M M J V S D", POLICE_NOM_MOIS)
+    return Dimensions(largeur=TAILLE_SEMAINE.largeur, hauteur=entete_jours_semaine.hauteur)
 
-TAILLE_IMAGE_MOIS = calculer_taille_canevas()
+def calculer_taille_canevas(mois: Mois) -> Dimensions:
+    taille_semaine = calculer_taille_semaine()
+    hauteur_mois = calculer_taille_entete_mois().hauteur \
+                   + calculer_taille_entete_lmmjvsd().hauteur \
+                   + taille_semaine.hauteur * len(mois.semaines)
+
+    return Dimensions(taille_semaine.largeur, hauteur_mois)
 
 
 def sauvegarde_image(image: Image, fichier='calendrier.png'):
@@ -123,3 +113,27 @@ def sauvegarde_image(image: Image, fichier='calendrier.png'):
     """
     # enregistrement de l’image finale dans un fichier
     image.save(fichier)
+
+##########################################
+#               CONSTANTES               #
+##########################################
+TAILLE_POLICE_JOURS = 25
+TAILLE_POLICE_JOURS_SEMAINE = agrandissement_relatif(pourcentage=15, reference=TAILLE_POLICE_JOURS)
+TAILLE_POLICE_NOM_MOIS = agrandissement_relatif(pourcentage=40, reference=TAILLE_POLICE_JOURS)
+
+POLICE_JOUR = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS)
+POLICE_JOURS_SEMAINE = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS_SEMAINE)
+POLICE_NOM_MOIS = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_NOM_MOIS)
+
+TAILLE_CASE_JOUR = calculer_taille_jour()
+TAILLE_SEMAINE = calculer_taille_semaine()
+TAILLE_ENTETE_MOIS = calculer_taille_entete_mois()
+
+class Couleur(Enum):
+    ROUGE = (255,0,0),
+    VERT = (0,255,0),
+    BLEU = (0,0,255),
+    BLANC = (255,255,255),
+    NOIR = (0,0,0)
+
+COULEUR_PAR_DEFAUT = Couleur.NOIR
