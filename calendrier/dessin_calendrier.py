@@ -17,7 +17,7 @@ from calendrier.outils_dessin import \
     Couleur, Point, Dimensions, \
     TAILLE_SEMAINE, TAILLE_CASE_JOUR, \
     sauvegarde_image, POLICE_JOUR, POLICE_NOM_MOIS, TAILLE_ENTETE_MOIS, calculer_taille_texte, \
-    POLICE_JOURS_SEMAINE, COULEUR_PAR_DEFAUT, calculer_taille_canevas
+    POLICE_JOURS_SEMAINE, COULEUR_PAR_DEFAUT, calculer_taille_image_du_mois
 
 
 def dessiner_jour(jour_str: str, p: Point, drawer: ImageDraw, police: ImageFont, couleur: Couleur = Couleur.NOIR):
@@ -102,13 +102,13 @@ def dessiner_ligne_lmmjvsd(p, drawer: ImageDraw):
     dessiner_jour('D', p, drawer, police=POLICE_JOURS_SEMAINE, couleur=Couleur.ROUGE)
 
 
-def dessiner_separateur(point_insertion: Point, largeur: int, drawer: ImageDraw):
-    drawer.line([point_insertion.to_tuple(), point_insertion.deplacer_x(largeur).to_tuple()], fill=Couleur.BLEU.format_rgb(), width=2)
+def dessiner_separateur(point_insertion: Point, longueur_separateur: int, drawer: ImageDraw):
+    drawer.line([point_insertion.to_tuple(), point_insertion.deplacer_x(longueur_separateur).to_tuple()], fill=Couleur.BLEU.format_rgb(), width=2)
 
 
-def dessiner_calendrier(annee: Annee):
+def generer_image_mois_pour_annee(annee: Annee):
     for mois in annee.liste_mois:
-        canevas = dessiner_canevas(calculer_taille_canevas(mois))
+        canevas = dessiner_canevas(calculer_taille_image_du_mois(mois))
 
         origine = Point(x=0, y=0)
         name = dessiner_mois(canevas, mois, origine)
@@ -130,4 +130,4 @@ def dessiner_mois(canevas, mois, origine):
 
 if __name__ == '__main__':
     a = Annee(2011)
-    dessiner_calendrier(a)
+    generer_image_mois_pour_annee(a)

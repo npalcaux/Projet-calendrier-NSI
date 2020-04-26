@@ -68,6 +68,12 @@ class Dimensions:
 
 
 def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
+    """
+    Calcule la taille de texte pour une police donnée
+    :param texte: le texte dont on veux calculer la taille
+    :param police: la police pour laquelle on souhaite calculer la taille du texte
+    :return: la dimension du texte donné en police donnée
+    """
     return Dimensions.from_tuple(police.getsize(texte)) \
            + Dimensions.from_tuple(police.getoffset(texte))
 
@@ -95,7 +101,8 @@ def calculer_taille_entete_lmmjvsd() -> Dimensions:
     entete_jours_semaine = calculer_taille_texte("L M M J V S D", POLICE_NOM_MOIS)
     return Dimensions(largeur=TAILLE_SEMAINE.largeur, hauteur=entete_jours_semaine.hauteur)
 
-def calculer_taille_canevas(mois: Mois) -> Dimensions:
+
+def calculer_taille_image_du_mois(mois: Mois) -> Dimensions:
     taille_semaine = calculer_taille_semaine()
     hauteur_mois = calculer_taille_entete_mois().hauteur \
                    + calculer_taille_entete_lmmjvsd().hauteur \
@@ -117,7 +124,7 @@ def sauvegarde_image(image: Image, fichier='calendrier.png'):
 ##########################################
 #               CONSTANTES               #
 ##########################################
-TAILLE_POLICE_JOURS = 25
+TAILLE_POLICE_JOURS = 44
 TAILLE_POLICE_JOURS_SEMAINE = agrandissement_relatif(pourcentage=15, reference=TAILLE_POLICE_JOURS)
 TAILLE_POLICE_NOM_MOIS = agrandissement_relatif(pourcentage=40, reference=TAILLE_POLICE_JOURS)
 

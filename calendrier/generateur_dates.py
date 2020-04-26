@@ -99,7 +99,6 @@ class Semaine:
             self.jours.append(Jour(jour_semaine=jour_semaine, jour_mois=jour_mois))
             jour_mois = jour_mois + 1
 
-
     def __normaliser_semaine(self):
         if self.jours[0].jour_sem.value > JoursSemaine.LUNDI.value:
             self.jours = [None for _ in range(self.jours[0].jour_sem.value)] + self.jours
