@@ -57,13 +57,13 @@ class Annee:
     def __init__(self, annee: int):
         self.annee = annee
         janv = self.__calculer_jour_semaine_prem_janv()
-        self.liste_mois: List[Mois] = [Mois(0, self.__calcul_jours_mois(0), JoursSemaine(janv))]
+        self.liste_mois: List[Mois] = [Mois(0, self.__calcul_jours_mois(0), JoursSemaine(janv), annee)]
 
         mois_precedent = self.liste_mois[0]
         for i in range(1, 12):
             jour_sem_premier_jour_mois = JoursSemaine(mois_precedent.dernier_jour_du_mois().jour_sem.jour_suivant())
             nombre_jour_dans_le_mois = self.__calcul_jours_mois(i)
-            mois = Mois(i, nombre_jour_dans_le_mois, jour_sem_premier_jour_mois)
+            mois = Mois(i, nombre_jour_dans_le_mois, jour_sem_premier_jour_mois, annee)
 
             self.liste_mois.append(mois)
             mois_precedent = mois
@@ -112,7 +112,8 @@ class Semaine:
 
 
 class Mois:
-    def __init__(self, no_mois: int, nombre_de_jours: int, jour_start_semaine=JoursSemaine.LUNDI) -> None:
+    def __init__(self, no_mois: int, nombre_de_jours: int, jour_start_semaine=JoursSemaine.LUNDI, annee=None) -> None:
+        self.annee = annee
         self.nombre_de_jours = nombre_de_jours
         self.no_mois = no_mois
         self.semaines: List[Semaine] = []

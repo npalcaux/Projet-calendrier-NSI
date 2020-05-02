@@ -10,6 +10,10 @@ def agrandissement_relatif(pourcentage: int, reference: int) -> int:
     return int(reference * (1 + pourcentage / 100))
 
 
+def retrecissement_relatif(pourcentage: int, reference: int) -> int:
+    return int(reference * (1 - pourcentage / 100))
+
+
 class Point:
     def __init__(self, x, y) -> None:
         self.x: int = x
@@ -135,7 +139,9 @@ def taille_semaines(mois: Mois) -> Dimensions:
 TAILLE_POLICE_JOURS = 44
 TAILLE_POLICE_JOURS_SEMAINE = agrandissement_relatif(pourcentage=15, reference=TAILLE_POLICE_JOURS)
 TAILLE_POLICE_NOM_MOIS = agrandissement_relatif(pourcentage=40, reference=TAILLE_POLICE_JOURS)
+TAILLE_POLICE_ANNEE_ENTETE_MOIS = retrecissement_relatif(pourcentage=45, reference=TAILLE_POLICE_JOURS)
 
+POLICE_ANNEE_ENTETE_MOIS = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_ANNEE_ENTETE_MOIS)
 POLICE_JOUR = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS)
 POLICE_JOURS_SEMAINE = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS_SEMAINE)
 POLICE_NOM_MOIS = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_NOM_MOIS)

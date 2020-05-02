@@ -17,7 +17,8 @@ from calendrier.outils_dessin import \
     Couleur, Point, Dimensions, \
     TAILLE_SEMAINE, TAILLE_CASE_JOUR, \
     sauvegarde_image, POLICE_JOUR, POLICE_NOM_MOIS, TAILLE_ENTETE_MOIS, calculer_taille_texte, \
-    POLICE_JOURS_SEMAINE, COULEUR_PAR_DEFAUT, calculer_taille_image_du_mois
+    POLICE_JOURS_SEMAINE, COULEUR_PAR_DEFAUT, calculer_taille_image_du_mois, TABLEAU_CORRESPONDENCE_MOIS_FOND, \
+    TAILLE_ENTETE_JOURS_SEMAINE, taille_semaines, POLICE_ANNEE_ENTETE_MOIS
 
 
 def dessiner_jour(jour_str: str, p: Point, drawer: ImageDraw, police: ImageFont, couleur: Couleur = Couleur.NOIR):
@@ -65,6 +66,8 @@ def dessiner_semaines(m: Mois, point_insertion: Point, drawer: ImageDraw, police
     for semaine in m.semaines:
         for jour in semaine.jours:
             if jour:
+                # ":>2" signifie à Python qu'il doit sessiner le chiffre sur 2 colonnes, et l'aligner à gauche
+                # aunsi, par exemple, le chiffre 1 sera affiche en tant que " 1"
                 dessiner_jour(f"{jour.jour_mois:>2}", p, drawer, police,
                               couleur=Couleur.ROUGE if jour.est_dimanche() else COULEUR_PAR_DEFAUT)
             p = p.deplacer_x(TAILLE_CASE_JOUR)
@@ -81,7 +84,7 @@ def dessiner_canevas(taille: Dimensions, CouleurFond: Couleur = Couleur.BLANC) -
 # RGB pour dire à PIL qu'on veut une image en couleurs.
 
 
-def dessiner_entete_nom_mois(mois: str, point_insertion: Point, drawer: ImageDraw, couleur_titre: Couleur = Couleur.NOIR):
+def dessiner_entete_nom_mois(mois: str, annee: str, point_insertion: Point, drawer: ImageDraw, couleur_titre: Couleur = Couleur.NOIR):
     """
     Dessine l'en-tête du mois
     :param annee:
@@ -92,7 +95,11 @@ def dessiner_entete_nom_mois(mois: str, point_insertion: Point, drawer: ImageDra
     # création d’un objet 'dessin' qui permet de dessiner sur l’image
     taile_texte = calculer_taille_texte(mois, POLICE_NOM_MOIS)
     p = (point_insertion.x + (TAILLE_SEMAINE.largeur - taile_texte.largeur) // 2, point_insertion.y)
-    drawer.text(p, mois, fill=couleur_titre.value, font=POLICE_NOM_MOIS)  # L'année est en entier que l'on passe en paramètres.
+    drawer.text(p, mois, fill=couleur_titre.value, font=POLICE_NOM_MOIS)
+
+    texte = calculer_taille_texte(annee, police=POLICE_ANNEE_ENTETE_MOIS)
+    p2 = (point_insertion.x + TAILLE_ENTETE_MOIS.largeur - texte.largeur, point_insertion.y)
+    drawer.text(p2, annee, fill=couleur_titre.value, font=POLICE_ANNEE_ENTETE_MOIS)
 
 
 def dessiner_ligne_lmmjvsd(p, drawer: ImageDraw):
@@ -106,10 +113,8 @@ def dessiner_separateur(point_insertion: Point, longueur_separateur: int, drawer
     drawer.line([point_insertion.to_tuple(), point_insertion.deplacer_x(longueur_separateur).to_tuple()], fill=Couleur.BLEU.format_rgb(), width=2)
 
 
-def generer_image_mois_pour_annee(annee: Annee):
 def generer_images_mois_pour_annee(annee: Annee):
     for mois in annee.liste_mois:
-        canevas = dessiner_canevas(calculer_taille_image_du_mois(mois))
         taille_canevas = calculer_taille_image_du_mois(mois)
         canevas = dessiner_canevas(taille_canevas)
 
@@ -123,13 +128,13 @@ def generer_images_mois_pour_annee(annee: Annee):
         sauvegarde_image(canevas, fichier=os.path.join("mois_calendrier", f"{name}.jpeg"))
 
 
-def dessiner_mois(canevas, mois, origine):
-    name = NOM_MOIS[mois.no_mois]
+def dessiner_mois(canevas: Image, mois: Mois, origine: Point):
+    nom_mois = NOM_MOIS[mois.no_mois]
     drawer = ImageDraw.Draw(canevas)
-    dessiner_entete_nom_mois(name, origine, drawer)
+    dessiner_entete_nom_mois(nom_mois, str(mois.annee), origine, drawer)
     y = origine.deplacer_y(TAILLE_ENTETE_MOIS)
     dessiner_ligne_lmmjvsd(y, drawer)
     dessiner_separateur(y, TAILLE_ENTETE_MOIS.largeur, drawer)
     point_insertion_semaines = origine.deplacer_y(TAILLE_CASE_JOUR).deplacer_y(TAILLE_ENTETE_MOIS)
     dessiner_semaines(mois, point_insertion_semaines, drawer, POLICE_JOUR)
-    return name
+    return nom_mois
