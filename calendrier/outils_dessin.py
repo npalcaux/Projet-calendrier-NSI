@@ -1,9 +1,9 @@
 from enum import Enum
 from typing import Tuple
 
-from PIL import ImageFont, Image
+from PIL import ImageFont, Image, ImageColor
 
-from calendrier.generateur_dates import Mois
+from calendrier.generateur_dates import Mois, Annee
 
 
 def agrandissement_relatif(pourcentage: int, reference: int) -> int:
@@ -45,6 +45,9 @@ class Point:
     def to_tuple(self) -> Tuple[int, int]:
         return self.x, self.y
 
+    def deplacer(self, d: 'Dimensions'):
+        return Point(self.x + d.largeur, self.y + d.hauteur)
+
 
 class Dimensions:
     """
@@ -72,6 +75,9 @@ class Dimensions:
 
     def empiler(self, autre: 'Dimensions') -> 'Dimensions':
         return Dimensions(max(self.largeur, autre.largeur), self.hauteur + autre.hauteur)
+
+    def elargir(self, autre: 'Dimensions') -> 'Dimensions':
+        return Dimensions(self.largeur + autre.largeur, max(self.hauteur, autre.hauteur))
 
 
 def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
@@ -118,6 +124,17 @@ def calculer_taille_image_du_mois(mois: Mois) -> Dimensions:
     return Dimensions(taille_semaine.largeur, hauteur_mois)
 
 
+def calculer_taille_image_annee(annee: Annee, lignes=3, colonnes=4) -> Dimensions:
+    taille_image_annee = Dimensions(0, 0) + calculer_taille_texte(str(annee.annee), POLICE_NOM_MOIS)
+    for l in range(lignes):
+        taille_rangee_mois = Dimensions(0, 0)
+        for c in range(colonnes):
+            taille_mois = calculer_taille_image_du_mois(annee.liste_mois[l + c])
+            taille_rangee_mois = taille_rangee_mois.elargir(taille_mois)
+        taille_image_annee = taille_image_annee.empiler(taille_rangee_mois)
+    return taille_image_annee
+
+
 def sauvegarde_image(image: Image, fichier='calendrier.png'):
     """
     fonction déstinée à sauvegarder une image dans le fichier.
@@ -151,17 +168,28 @@ TAILLE_SEMAINE = calculer_taille_semaine()
 TAILLE_ENTETE_JOURS_SEMAINE = calculer_taille_entete_lmmjvsd()
 TAILLE_ENTETE_MOIS = calculer_taille_entete_mois()
 
+
 class Couleur(Enum):
-    ROUGE = (255,0,0),
-    VERT = (0,255,0),
-    BLEU = (0,0,255),
-    BLANC = (255,255,255),
-    NOIR = (0,0,0)
+    ROUGE = "#ff4040"
+    VERT = "#3df23d"
+    BLEU = "#3d3df2"
+    JAUNE = "#f2f23d"
+    CYAN = "#3df2f2"
+    MAGENTA = "#f23df2"
+    ORANGE = "#f2973d"
+    TURQUOISE = "#3df297"
+    VIOLET = "#973df2"
+    VERT_CLAIR = "#97f23d"
+    BLEU_CLAIR = "#3d97f2"
+    ROSE = "#f23d97"
+    NOIR = "#000000"
+    BLANC = "#ffffff"
 
     def format_rgb(self):
-        return self.value[0]
+        return self.value
 
-COULEUR_PAR_DEFAUT = Couleur.NOIR
+COULEUR_PAR_DEFAUT_TEXTE = Couleur.NOIR
+COULEUR_PAR_DEFAUT_ENTETE=Couleur.VERT_CLAIR
 
 TABLEAU_CORRESPONDENCE_MOIS_FOND = [
     "janvier.jpg", "fevrier.png", "mars.jpg", "janvier.jpg",
