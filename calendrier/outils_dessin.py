@@ -1,17 +1,20 @@
 from enum import Enum
-from typing import Tuple
+from typing import List, Tuple
 
-from PIL import ImageFont, Image, ImageColor
+from PIL import Image, ImageDraw, ImageFont
 
-from calendrier.generateur_dates import Mois, Annee
-
-
-def agrandissement_relatif(pourcentage: int, reference: int) -> int:
-    return int(reference * (1 + pourcentage / 100))
+from calendrier.constantes import COULEUR_PAR_DEFAUT_TEXTE, Couleur
 
 
-def retrecissement_relatif(pourcentage: int, reference: int) -> int:
-    return int(reference * (1 - pourcentage / 100))
+def sauvegarde_image(image: Image, fichier='calendrier.png'):
+    """
+    fonction déstinée à sauvegarder une image dans le fichier.
+    :param image: image a sauvegarder
+    :param fichier: nom du fichier (par défaut est "calendrier.png")
+    :return:
+    """
+    # enregistrement de l’image finale dans un fichier
+    image.save(fichier)
 
 
 class Point:
@@ -67,17 +70,90 @@ class Dimensions:
     def __add__(self, other: 'Dimensions'):
         return Dimensions(self.largeur + other.largeur, self.hauteur + other.hauteur)
 
+    def __sub__(self, other: 'Dimensions'):
+        return Dimensions(self.largeur - other.largeur, self.hauteur - other.hauteur)
+
     def __getitem__(self, item):
         return self.largeur if item == 0 else self.hauteur
 
     def to_tuple(self):
         return self.largeur, self.hauteur
 
-    def empiler(self, autre: 'Dimensions') -> 'Dimensions':
-        return Dimensions(max(self.largeur, autre.largeur), self.hauteur + autre.hauteur)
+    def __gt__(self, other):
+        return self.largeur >= other.largeur and self.hauteur >= other.hauteur
 
-    def elargir(self, autre: 'Dimensions') -> 'Dimensions':
-        return Dimensions(self.largeur + autre.largeur, max(self.hauteur, autre.hauteur))
+    def __eq__(self, other):
+        return self.largeur == other.largeur and self.hauteur == other.hauteur
+
+    @staticmethod
+    def __empiler(un: 'Dimensions', autre: 'Dimensions') -> 'Dimensions':
+        return Dimensions(
+                max(un.largeur, autre.largeur),
+                un.hauteur + autre.hauteur
+            )
+
+    def empiler(self, *autres: 'Dimensions') -> 'Dimensions':
+        multi = self.empiler_multi([autre for autre in autres])
+        return Dimensions.__empiler(self, multi)
+
+    @staticmethod
+    def empiler_multi(autres: List['Dimensions']) -> 'Dimensions':
+        dimenssion_courante = Dimensions(0, 0)
+        for autre in autres:
+            dimenssion_courante = Dimensions.__empiler(dimenssion_courante, autre)
+
+        return dimenssion_courante
+
+    def elargir(self, *autres) -> 'Dimensions':
+        varargs = [autre for autre in autres]
+        varargs.append(self)
+        return self.elargir_multi(varargs)
+
+    @staticmethod
+    def elargir_multi(autres:List) -> 'Dimensions':
+        dimenssion_courante = Dimensions(0, 0)
+        for autre in autres:
+            if isinstance(autre, Dimensions):
+                dimenssion_courante = Dimensions(dimenssion_courante.largeur + autre.largeur, max(dimenssion_courante.hauteur, autre.hauteur))
+            else:
+                dimenssion_courante = Dimensions(dimenssion_courante.largeur + autre, dimenssion_courante.hauteur)
+        return dimenssion_courante
+
+
+class AlignementHorizontal(Enum):
+    GAUCHE = -1
+    CENTRE = 0
+    DROITE = 1
+
+
+class AlignementVertical(Enum):
+    BAS = -1
+    CENTRE = 0
+    HAUT = 1
+
+
+def dessiner_texte(craion: ImageDraw, texte: str, police: ImageFont, taille_fenetre: Dimensions,
+                   origine: Point = Point(0, 0), couleur_texte=COULEUR_PAR_DEFAUT_TEXTE,
+                   alignement_horizontal=AlignementHorizontal.GAUCHE, alignement_vertical=AlignementVertical.CENTRE):
+
+    taille_texte = calculer_taille_texte(texte, police)
+
+    if alignement_horizontal == AlignementHorizontal.DROITE:
+        x = origine.x + taille_fenetre.largeur - taille_texte.largeur
+    elif alignement_horizontal == AlignementHorizontal.CENTRE:
+        x = origine.x + (taille_fenetre.largeur - taille_texte.largeur) // 2
+    else:
+        x = origine.x
+
+    if alignement_vertical == AlignementVertical.BAS:
+        y = origine.y + taille_fenetre.largeur - taille_texte.largeur
+    elif alignement_vertical == AlignementVertical.CENTRE:
+        y = origine.y + (taille_fenetre.hauteur - taille_texte.hauteur) // 2
+    else:
+        y = origine.y
+
+    p = (x, y)
+    craion.text(p, texte, fill=couleur_texte.format_rgb(), font=police)
 
 
 def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
@@ -88,111 +164,12 @@ def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
     :return: la dimension du texte donné en police donnée
     """
     return Dimensions.from_tuple(police.getsize(texte)) \
-           + Dimensions.from_tuple(police.getoffset(texte))
+        + Dimensions.from_tuple(police.getoffset(texte))
 
 
-def calculer_taille_jour() -> Dimensions:
+def dessiner_canevas(taille: Dimensions, CouleurFond: Couleur = Couleur.BLANC) -> Image:
     """
-    Calcule la taille de la case "jour" du calendrier
-    On la dimenssione sur la base de la taille de la police
-    utilisé pour l'affichege des jours de semaine (plus grande)
-    :return: la taille d'in case jour
+    Création de l’image au format 'rgb' avec la couleur de fond passé en parametre
     """
-    return calculer_taille_texte("00", POLICE_JOURS_SEMAINE) + Dimensions(10, 10)
-
-
-def calculer_taille_semaine() -> Dimensions:
-    return calculer_taille_jour() * Dimensions(7, 1)
-
-
-def calculer_taille_entete_mois() -> Dimensions:
-    nom_mois = calculer_taille_texte("JANVIER", POLICE_NOM_MOIS)
-    return Dimensions(largeur=TAILLE_SEMAINE.largeur, hauteur=nom_mois.hauteur)
-
-
-def calculer_taille_entete_lmmjvsd() -> Dimensions:
-    entete_jours_semaine = calculer_taille_texte("L M M J V S D", POLICE_NOM_MOIS)
-    return Dimensions(largeur=TAILLE_SEMAINE.largeur, hauteur=entete_jours_semaine.hauteur)
-
-
-def calculer_taille_image_du_mois(mois: Mois) -> Dimensions:
-    taille_semaine = calculer_taille_semaine()
-    hauteur_mois = calculer_taille_entete_mois().hauteur \
-                   + calculer_taille_entete_lmmjvsd().hauteur \
-                   + taille_semaine.hauteur * len(mois.semaines)
-
-    return Dimensions(taille_semaine.largeur, hauteur_mois)
-
-
-def calculer_taille_image_annee(annee: Annee, lignes=3, colonnes=4) -> Dimensions:
-    taille_image_annee = Dimensions(0, 0) + calculer_taille_texte(str(annee.annee), POLICE_NOM_MOIS)
-    for l in range(lignes):
-        taille_rangee_mois = Dimensions(0, 0)
-        for c in range(colonnes):
-            taille_mois = calculer_taille_image_du_mois(annee.liste_mois[l + c])
-            taille_rangee_mois = taille_rangee_mois.elargir(taille_mois)
-        taille_image_annee = taille_image_annee.empiler(taille_rangee_mois)
-    return taille_image_annee
-
-
-def sauvegarde_image(image: Image, fichier='calendrier.png'):
-    """
-    fonction déstinée à sauvegarder une image dans le fichier.
-    :param image: image a sauvegarder
-    :param fichier: nom du fichier (par défaut est "calendrier.png")
-    :return:
-    """
-    # enregistrement de l’image finale dans un fichier
-    image.save(fichier)
-
-
-def taille_semaines(mois: Mois) -> Dimensions:
-    return Dimensions(TAILLE_SEMAINE.largeur, TAILLE_SEMAINE.hauteur * len(mois.semaines))
-
-
-##########################################
-#               CONSTANTES               #
-##########################################
-TAILLE_POLICE_JOURS = 44
-TAILLE_POLICE_JOURS_SEMAINE = agrandissement_relatif(pourcentage=15, reference=TAILLE_POLICE_JOURS)
-TAILLE_POLICE_NOM_MOIS = agrandissement_relatif(pourcentage=40, reference=TAILLE_POLICE_JOURS)
-TAILLE_POLICE_ANNEE_ENTETE_MOIS = retrecissement_relatif(pourcentage=45, reference=TAILLE_POLICE_JOURS)
-
-POLICE_ANNEE_ENTETE_MOIS = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_ANNEE_ENTETE_MOIS)
-POLICE_JOUR = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS)
-POLICE_JOURS_SEMAINE = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS_SEMAINE)
-POLICE_NOM_MOIS = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_NOM_MOIS)
-
-TAILLE_CASE_JOUR = calculer_taille_jour()
-TAILLE_SEMAINE = calculer_taille_semaine()
-TAILLE_ENTETE_JOURS_SEMAINE = calculer_taille_entete_lmmjvsd()
-TAILLE_ENTETE_MOIS = calculer_taille_entete_mois()
-
-
-class Couleur(Enum):
-    ROUGE = "#ff4040"
-    VERT = "#3df23d"
-    BLEU = "#3d3df2"
-    JAUNE = "#f2f23d"
-    CYAN = "#3df2f2"
-    MAGENTA = "#f23df2"
-    ORANGE = "#f2973d"
-    TURQUOISE = "#3df297"
-    VIOLET = "#973df2"
-    VERT_CLAIR = "#97f23d"
-    BLEU_CLAIR = "#3d97f2"
-    ROSE = "#f23d97"
-    NOIR = "#000000"
-    BLANC = "#ffffff"
-
-    def format_rgb(self):
-        return self.value
-
-COULEUR_PAR_DEFAUT_TEXTE = Couleur.NOIR
-COULEUR_PAR_DEFAUT_ENTETE=Couleur.VERT_CLAIR
-
-TABLEAU_CORRESPONDENCE_MOIS_FOND = [
-    "janvier.jpg", "fevrier.png", "mars.jpg", "janvier.jpg",
-    "janvier.jpg", "janvier.jpg", "janvier.jpg", "janvier.jpg",
-    "janvier.jpg", "janvier.jpg", "janvier.jpg", "decembre.jpg",
-]
+    im = Image.new('RGB', taille.to_tuple(), CouleurFond.value)
+    return im

@@ -52,6 +52,9 @@ class Jour:
     def est_dimanche(self):
         return self.jour_sem == JoursSemaine.DIMANCHE
 
+    def est_vide(self):
+        return self.jour_mois < 1
+
 
 class Annee:
     def __init__(self, annee: int):
@@ -113,7 +116,7 @@ class Semaine:
 
 class Mois:
     def __init__(self, no_mois: int, nombre_de_jours: int, jour_start_semaine=JoursSemaine.LUNDI, annee=None) -> None:
-        self.annee = annee
+        self.annee: int = annee
         self.nombre_de_jours = nombre_de_jours
         self.no_mois = no_mois
         self.semaines: List[Semaine] = []
@@ -133,4 +136,3 @@ class Mois:
 
     def __str__(self) -> str:
         return ", ".join([f"{j} {self.no_mois}" for j in self.semaines])
-

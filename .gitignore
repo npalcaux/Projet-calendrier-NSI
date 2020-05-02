@@ -10,5 +10,6 @@
 /mois_calendrier/NOVEMBRE.jpeg
 /mois_calendrier/OCTOBRE.jpeg
 /mois_calendrier/SEPTEMBRE.jpeg
+/mois_calendrier/[0-9]*.jpeg
 .idea/
 calendrier/__pycache__/
