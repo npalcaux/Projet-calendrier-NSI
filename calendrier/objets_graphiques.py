@@ -7,7 +7,7 @@ from calendrier.constantes import Couleur
 
 from calendrier.outils_dessin import dessiner_texte, Point, Dimensions, calculer_taille_texte, AlignementHorizontal, \
     AlignementVertical
-from calendrier.generateur_dates import Jour, Mois, Semaine, NOM_MOIS, JoursSemaine
+from calendrier.generateur_dates import Jour, Mois, Semaine
 
 
 class ObjetGraphique(ABC):
@@ -147,7 +147,7 @@ class ObjetGraphiqueMois(ObjetGraphique):
         super().__init__(mois)
 
         self.epaisseur_cadre_mois = 3
-        self.nom_mois = NOM_MOIS[mois.no_mois]
+        self.nom_mois = NOM_MOIS[mois.nom_mois.value]
         self.semaines = [ObjetGraphiqueSemaine(semaine, couleur_cadre_jour=couleur_cadre_jour) for semaine in mois.semaines]
 
         self.image_fond = None
@@ -262,9 +262,25 @@ class ObjetGraphiqueMois(ObjetGraphique):
             raise BaseException("Il faut fournir la reference de l'image canevas si on souhaite dessiner les images de fond de mois")
 
         # coller l'image du fond
-        back_im = Image.open(os.path.join('image_fond', CONST.TABLEAU_CORRESPONDENCE_MOIS_FOND[self.donnees.no_mois]))
+        back_im = Image.open(os.path.join('image_fond', CONST.TABLEAU_CORRESPONDENCE_MOIS_FOND[self.donnees.nom_mois.value]))
         image_fond_semaines = back_im.resize(self.taille_zone_semaines.to_tuple())
         canevas.paste(image_fond_semaines, origine.to_tuple())
+
+
+NOM_MOIS = (
+    "JANVIER",
+    "FEVRIER",
+    "MARS",
+    "AVRIL",
+    "MAI",
+    "JUIN",
+    "JUILLET",
+    "AOUT",
+    "SEPTEMBRE",
+    "OCTOBRE",
+    "NOVEMBRE",
+    "DECEMBRE"
+)
 
 
 def _jour_mois_to_string(valeur: int):
