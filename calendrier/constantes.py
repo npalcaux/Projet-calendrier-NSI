@@ -40,6 +40,7 @@ class Couleur(Enum):
     ROSE = "#f23d97"
     NOIR = "#000000"
     BLANC = "#ffffff"
+    GRIS_CLAIR = "#A8B1B9"
 
     def format_rgb(self):
         return self.value

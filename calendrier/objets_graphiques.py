@@ -110,8 +110,9 @@ class ObjetGraphiqueJour(ObjetGraphiqueTexte):
 
         # On demande à PIL d'écrire le chiffre correspondant au jour du mois passé en paramètres sur l'image au point p.
         # Rmq: Nous transformons préalablement le point en Tuple car la librairie PIL ne comprends pas nos objets de type Point
-        if not self.jour.etrangere():
-            super().dessiner(drawer, origine)
+        if self.jour.etrangere():
+            self.couleur_texte = Couleur.GRIS_CLAIR
+        super().dessiner(drawer, origine)
 
 
 class ObjetGraphiqueSemaine(ObjetGraphique):

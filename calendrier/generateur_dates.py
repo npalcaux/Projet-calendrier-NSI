@@ -54,6 +54,8 @@ class Semaine:
 class Mois:
     def __init__(self, no_mois, semaines: List[Semaine] = None, annee: int = None):
         self.semaines = semaines if semaines else []
+        # s'assurer que la liste de semaines est trié
+        self.semaines.sort(key=lambda semaine: semaine.no_semaine)
         self.no_mois = no_mois
         self.annee = annee
 
@@ -63,13 +65,13 @@ class Annee:
         self.annee = annee
 
 
-def __calculer_jour_semaine_prem_janv(annee: int):
+def __calculer_jour_semaine_1er_janv(annee: int):
     d = date(annee, 1, 1)
     return d.weekday()
 
 
 def annee(annee: int):
-    jour_semaine_1er_janvier = __calculer_jour_semaine_prem_janv(annee)
+    jour_semaine_1er_janvier = __calculer_jour_semaine_1er_janv(annee)
     calendrier = [jour for jour in generateur_calendrier(annee, jour_semaine_1er_janvier)]
 
     return Annee(annee, [
