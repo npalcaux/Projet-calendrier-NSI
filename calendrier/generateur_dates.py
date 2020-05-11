@@ -75,8 +75,8 @@ def annee(annee: int):
     return Annee(annee, [
         Mois(mois,
              [
-                 Semaine(sem, [Jour(j[0], j[1], j[3], mois) for j in calendrier if j[2] == sem and j[4] == annee])
-                 for sem in set(j[2] for j in calendrier if j[3] == mois)
+                 Semaine(sem, [Jour(j[0], j[1], j[3], mois) for j in calendrier if j[2] == sem])
+                 for sem in set(j[2] for j in calendrier if j[3] == mois and j[4] == annee)
              ], annee)
         for mois in range(12)
     ])

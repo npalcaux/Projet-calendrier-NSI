@@ -39,10 +39,11 @@ def generateur_calendrier(annee: int, jou_sem_start: int) -> Generator[Tuple, No
 
 
 class Jour:
-    def __init__(self, jour_mois, jour_semaine, mois: int):
+    def __init__(self, jour_mois, jour_semaine, mois: int, annee: int):
         self.jour_mois = jour_mois
         self.jour_semaine = jour_semaine
         self.mois = mois
+        self.annee = annee
 
 class Semaine:
     def __init__(self, no_semaine, jours: List[Jour] = None):
@@ -68,8 +69,8 @@ if __name__ == '__main__':
     annee_mois = Annee(annee, [
         Mois(mois,
              [
-                 Semaine(sem, [Jour(j[0], j[1], j[3]) for j in calendrier if j[2] == sem])
-                 for sem in set(j[2] for j in calendrier if j[3] == mois)
+                 Semaine(sem, [Jour(j[0], j[1], j[3], j[4]) for j in calendrier if j[2] == sem])
+                 for sem in set(j[2] for j in calendrier if j[3] == mois and j[4] == annee)
              ], annee)
         for mois in range(12)
     ])
