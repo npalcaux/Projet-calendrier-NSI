@@ -1,8 +1,4 @@
-from typing import List, Generator, Tuple
-
-
-def __est_anne_bisextile(annee: int):
-    return annee % 4 == 0
+from typing import Generator, Tuple, List
 
 
 def __calcul_jours_mois(numero_mois0: int, annee: int) -> int:
@@ -10,17 +6,13 @@ def __calcul_jours_mois(numero_mois0: int, annee: int) -> int:
     if nummero_mois in (1, 3, 5, 7, 8, 10, 12):
         return 31
     elif nummero_mois == 2:
-        return 29 if __est_anne_bisextile(annee) else 28
+        return 29 if annee % 4 == 0 else 28
     else:
         return 30
 
 
-def generateur_jour_semaine(start: int) -> Generator[int, None, None]:
+def generateur_jour_semaine() -> Generator[int, None, None]:
     no_semaine = 0
-    if start > 0:
-        for i in range(start, 7):
-            yield i, no_semaine
-        no_semaine = no_semaine + 1
     while True:
         for i in range(7):
             yield i, no_semaine
@@ -28,14 +20,61 @@ def generateur_jour_semaine(start: int) -> Generator[int, None, None]:
 
 
 def generateur_calendrier(annee: int, jou_sem_start: int) -> Generator[Tuple, None, None]:
-    semaine = generateur_jour_semaine(jou_sem_start)
+    jour_semaine_gen = generateur_jour_semaine()
+
+    for j in range(jou_sem_start):
+        jour_sem, no_sem = next(jour_semaine_gen)
+        yield 31 - jou_sem_start + j+1, jour_sem, no_sem, 0, annee-1
+
     for mois_courrante in range(12):
         nombre_jours = __calcul_jours_mois(mois_courrante, annee)
         for jour in range(nombre_jours):
-            jour_semaine, no_semaine = next(semaine)
-            yield jour+1, jour_semaine, no_semaine, mois_courrante
+            jour_semaine, no_semaine = next(jour_semaine_gen)
+            yield jour+1, jour_semaine, no_semaine, mois_courrante, annee
+
+    # noinspection PyUnboundLocalVariable
+    for j in range(7 - jour_semaine - 1):
+        jour_sem, no_sem = next(jour_semaine_gen)
+        yield j + 1, jour_sem, no_sem, 0, annee + 1
+
+
+class Jour:
+    def __init__(self, jour_mois, jour_semaine):
+        self.jour_mois = jour_mois
+        self.jour_semaine = jour_semaine
+
+class Semaine:
+    def __init__(self, no_semaine, jours: List[Jour] = None):
+        self.jours = jours if jours else []
+        self.no_semaine = no_semaine
+
+class Mois:
+    def __init__(self, no_mois, semaines: List[Jour] = None, annee: int = None):
+        self.semaines = semaines if semaines else []
+        self.no_semaine = no_mois
+        self.annee = annee
 
 
 if __name__ == '__main__':
-    for mois in generateur_calendrier(2020, 2):
-        print(mois)
+    calendrier = [jour for jour in generateur_calendrier(2020, 2)]
+
+    annee = [
+        [
+            [j for j in calendrier if j[2] == sem]
+            for sem in set(j[2] for j in calendrier if j[3] == mois)
+        ]
+        for mois in range(12)
+    ]
+
+    liste_mois: List[Mois] = []
+    for mois in annee:
+        obj_mois = Mois(0)
+        for semaine in mois:
+            obj_semaine = Semaine(0)
+            for j in semaine:
+                obj_semaine.jours.append(Jour(j[0], j[1]))
+            obj_mois.semaines.append(obj_semaine)
+        liste_mois.append(obj_mois)
+
+    print(liste_mois)
+
