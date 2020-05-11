@@ -82,39 +82,23 @@ class ObjetGraphiqueTexte(ObjetGraphique):
             )
 
 
-class ObjetGraphiqueJour(ObjetGraphique):
+class ObjetGraphiqueJour(ObjetGraphiqueTexte):
     def __init__(self,
                  jour: Jour,
                  couleur_fond: Couleur = None,
                  couleur_cadre: Couleur = None):
 
-        super().__init__(jour)
-
-        #   Calcule la taille de la case "jour" du calendrier
-        #   On la dimenssione sur la base de la taille de la police
-        #   utilisé pour l'affichege des jours de semaine (plus grande)
-
-        if jour:
-            self.texte = _jour_mois_to_string(jour.jour_mois)
-
-            self.case_texte = ObjetGraphiqueTexte(
-                self.texte,
-                taille=TAILLE_OPTIMUM_CASE_JOUR,
-                police=CONST.POLICE_JOUR,
-                couleur_cadre=couleur_cadre,
-                couleur_fond=couleur_fond,
-                couleur_texte=Couleur.ROUGE if self.donnees.est_dimanche() else CONST.COULEUR_PAR_DEFAUT_TEXTE,
-                alignement_horizontal=AlignementHorizontal.CENTRE,
-                alignement_vertical=AlignementVertical.CENTRE
-            )
-
-        else:
-            # noinspection PyTypeChecker
-            self.case_texte = ObjetGraphiqueTexte(
-                texte=None,
-                taille=TAILLE_OPTIMUM_CASE_JOUR,
-                police=CONST.POLICE_JOUR
-            )
+        super().__init__(
+            _jour_mois_to_string(jour.jour_mois),
+            taille=TAILLE_OPTIMUM_CASE_JOUR,
+            police=CONST.POLICE_JOUR,
+            couleur_cadre=couleur_cadre,
+            couleur_fond=couleur_fond,
+            couleur_texte=Couleur.ROUGE if jour.est_dimanche() else CONST.COULEUR_PAR_DEFAUT_TEXTE,
+            alignement_horizontal=AlignementHorizontal.CENTRE,
+            alignement_vertical=AlignementVertical.CENTRE
+        )
+        self.jour = jour
 
     def dessiner(self, drawer: ImageDraw, origine: Point, image: Image = None):
         """
@@ -126,7 +110,8 @@ class ObjetGraphiqueJour(ObjetGraphique):
 
         # On demande à PIL d'écrire le chiffre correspondant au jour du mois passé en paramètres sur l'image au point p.
         # Rmq: Nous transformons préalablement le point en Tuple car la librairie PIL ne comprends pas nos objets de type Point
-        self.case_texte.dessiner(drawer, origine)
+        if not self.jour.etrangere():
+            super().dessiner(drawer, origine)
 
 
 class ObjetGraphiqueSemaine(ObjetGraphique):
@@ -138,7 +123,7 @@ class ObjetGraphiqueSemaine(ObjetGraphique):
             for j in semaine.jours
         ]
 
-        self.taille = Dimensions.elargir_multi([j.case_texte.taille for j in self.jours])
+        self.taille = Dimensions.elargir_multi([j.taille for j in self.jours])
         self.couleur_fond = None
         self.couleur_cadre = None
 
@@ -146,7 +131,7 @@ class ObjetGraphiqueSemaine(ObjetGraphique):
         p = origine
         for jour in self.jours:
             jour.dessiner(drawer, p)
-            p = p.deplacer_x(jour.case_texte.taille)
+            p = p.deplacer_x(jour.taille)
 
 
 class ObjetGraphiqueMois(ObjetGraphique):

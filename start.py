@@ -2,7 +2,7 @@ import datetime
 import sys
 
 from calendrier.dessin_calendrier import generer_images_mois_pour_annee, generer_image_annee
-from calendrier.generateur_dates import Annee
+from calendrier.generateur_dates import Annee, annee
 
 if __name__ == '__main__':
     arguments_ligne_commande = sys.argv
@@ -16,6 +16,6 @@ if __name__ == '__main__':
         print(f"Année précisée par l'utilisateur: {annee_utilisateur}")
         annee_calendrier = int(annee_utilisateur)
 
-    a = Annee(annee_calendrier)
+    a = annee(annee_calendrier)
     generer_images_mois_pour_annee(a)
     generer_image_annee(a)

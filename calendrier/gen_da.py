@@ -24,7 +24,7 @@ def generateur_calendrier(annee: int, jou_sem_start: int) -> Generator[Tuple, No
 
     for j in range(jou_sem_start):
         jour_sem, no_sem = next(jour_semaine_gen)
-        yield 31 - jou_sem_start + j+1, jour_sem, no_sem, 0, annee-1
+        yield 31 - jou_sem_start + j+1, jour_sem, no_sem, 11, annee-1
 
     for mois_courrante in range(12):
         nombre_jours = __calcul_jours_mois(mois_courrante, annee)
@@ -39,9 +39,10 @@ def generateur_calendrier(annee: int, jou_sem_start: int) -> Generator[Tuple, No
 
 
 class Jour:
-    def __init__(self, jour_mois, jour_semaine):
+    def __init__(self, jour_mois, jour_semaine, mois: int):
         self.jour_mois = jour_mois
         self.jour_semaine = jour_semaine
+        self.mois = mois
 
 class Semaine:
     def __init__(self, no_semaine, jours: List[Jour] = None):
@@ -49,32 +50,29 @@ class Semaine:
         self.no_semaine = no_semaine
 
 class Mois:
-    def __init__(self, no_mois, semaines: List[Jour] = None, annee: int = None):
+    def __init__(self, no_mois, semaines: List[Semaine] = None, annee: int = None):
         self.semaines = semaines if semaines else []
-        self.no_semaine = no_mois
+        self.no_mois = no_mois
+        self.annee = annee
+
+class Annee:
+    def __init__(self, annee, mois: List[Mois] = None):
+        self.mois = mois if mois else []
         self.annee = annee
 
 
 if __name__ == '__main__':
-    calendrier = [jour for jour in generateur_calendrier(2020, 2)]
+    annee = 2020
+    calendrier = [jour for jour in generateur_calendrier(annee, 2)]
 
-    annee = [
-        [
-            [j for j in calendrier if j[2] == sem]
-            for sem in set(j[2] for j in calendrier if j[3] == mois)
-        ]
+    annee_mois = Annee(annee, [
+        Mois(mois,
+             [
+                 Semaine(sem, [Jour(j[0], j[1], j[3]) for j in calendrier if j[2] == sem])
+                 for sem in set(j[2] for j in calendrier if j[3] == mois)
+             ], annee)
         for mois in range(12)
-    ]
+    ])
 
-    liste_mois: List[Mois] = []
-    for mois in annee:
-        obj_mois = Mois(0)
-        for semaine in mois:
-            obj_semaine = Semaine(0)
-            for j in semaine:
-                obj_semaine.jours.append(Jour(j[0], j[1]))
-            obj_mois.semaines.append(obj_semaine)
-        liste_mois.append(obj_mois)
-
-    print(liste_mois)
+    print(annee_mois)
 
