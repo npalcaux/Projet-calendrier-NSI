@@ -10,7 +10,6 @@ from calendrier.outils_dessin import dessiner_texte, Point, Dimensions, calculer
 from calendrier.generateur_dates import Jour, Mois, Semaine, NOM_MOIS, JoursSemaine
 
 
-
 class ObjetGraphique(ABC):
     def __init__(self, data):
         self.donnees = data
@@ -81,28 +80,6 @@ class ObjetGraphiqueTexte(ObjetGraphique):
                 geometrie_rectangle,
                 fill=self.couleur_fond.value
             )
-
-
-def _jour_mois_to_string(valeur: int):
-    return f"{valeur:>2}"
-
-
-def __taille_max_case_jour() -> Dimensions:
-    taille_jours = [calculer_taille_texte(_jour_mois_to_string(valeur), CONST.POLICE_JOUR) for valeur in range(10, 32)]
-    return Dimensions(
-        max(taille.largeur for taille in taille_jours),
-        max(taille.hauteur for taille in taille_jours)
-    )
-
-
-TAILLE_OPTIMUM_CASE_JOUR: Dimensions = __taille_max_case_jour() + Dimensions(10, 10)
-
-
-def __taille_max_nom_mois():
-    return max(calculer_taille_texte(nom, CONST.POLICE_NOM_MOIS) for nom in NOM_MOIS)
-
-
-TAILLE_MAX_TEXTE_NOM_MOIS = __taille_max_nom_mois() + Dimensions(10, 10)
 
 
 class ObjetGraphiqueJour(ObjetGraphique):
@@ -302,3 +279,23 @@ class ObjetGraphiqueMois(ObjetGraphique):
         back_im = Image.open(os.path.join('image_fond', CONST.TABLEAU_CORRESPONDENCE_MOIS_FOND[self.donnees.no_mois]))
         image_fond_semaines = back_im.resize(self.taille_zone_semaines.to_tuple())
         canevas.paste(image_fond_semaines, origine.to_tuple())
+
+
+def _jour_mois_to_string(valeur: int):
+    return f"{valeur:>2}"
+
+
+def __taille_max_case_jour() -> Dimensions:
+    taille_jours = [calculer_taille_texte(_jour_mois_to_string(valeur), CONST.POLICE_JOUR) for valeur in range(10, 32)]
+    return Dimensions(
+        max(taille.largeur for taille in taille_jours),
+        max(taille.hauteur for taille in taille_jours)
+    )
+
+
+def __taille_max_nom_mois():
+    return max(calculer_taille_texte(nom, CONST.POLICE_NOM_MOIS) for nom in NOM_MOIS)
+
+
+TAILLE_OPTIMUM_CASE_JOUR: Dimensions = __taille_max_case_jour() + Dimensions(10, 10)
+TAILLE_MAX_TEXTE_NOM_MOIS = __taille_max_nom_mois() + Dimensions(10, 10)
