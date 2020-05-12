@@ -1,6 +1,6 @@
 import unittest
 
-from calendrier.generateur_dates import generateur_mois, _modulo_plus_valeur, \
+from calendrier.generateur_dates import _generateur_mois, _modulo_plus_valeur, \
     _mois_annee_plus_valeur
 
 
@@ -49,6 +49,6 @@ class TestCalendrierMethods(unittest.TestCase):
 
 
     def test_mois(self):
-        mois = [j for j in generateur_mois(2, 2020, 6)]
-        self.assertEqual((1, 6, 0, 2, 2020), mois[0][6])
-        self.assertEqual((31, 1, 5, 2, 2020), mois[5][1])
+        mois = [j for j in _generateur_mois(2, 2020, 6)]
+        self.assertEqual((1, 6, 2, 2020), mois[0][6])
+        self.assertEqual((31, 1, 2, 2020), mois[5][1])
