@@ -35,22 +35,18 @@ class NomMois(Enum):
     NOVEMBRE = 10
     DECEMBRE = 11
 
-    def __add__(self, other: int):
-        return _mois_plus_valeur(self.value, other)
 
-def _mois_plus_valeur(mois: int, delta: int):
-        mois_delta = mois + delta
+def _modulo_plus_valeur(valeur_depart: int, delta: int, base: int):
+        mois_delta = valeur_depart + delta
         if mois_delta < 0:
-            return mois_delta % 12
+            return mois_delta % base, -abs(mois_delta // base)
         else:
-            return mois_delta % 12
+            return mois_delta % base, mois_delta // base
+
 
 def _mois_annee_plus_valeur(mois: int, annee: int, delta_mois: int):
-        mois_delta = mois + delta_mois
-        if mois_delta < 0:
-            return mois_delta % 12, annee - abs(mois_delta // 12)
-        else:
-            return mois_delta % 12, annee + mois_delta // 12
+    valeur = _modulo_plus_valeur(mois, delta_mois, 12)
+    return valeur[0], annee + valeur[1]
 
 
 def __calcul_jours_mois(numero_mois0: int, annee: int) -> int:
@@ -139,14 +135,14 @@ def __calculer_jour_semaine_1er_janv(annee: int):
     d = date(annee, 1, 1)
     return d.weekday()
 
+
 def generateur_annee(annee) -> Generator[Tuple, None, None]:
     jour_sem_mois_start = __calculer_jour_semaine_1er_janv(annee)
     gen_jour_sem = generateur_jour_semaine()
     for no_mois in range(12):
         mois = [semaine for semaine in generateur_mois(no_mois, annee, jour_sem_mois_start, gen_jour_sem)]
         yield mois
-        # noinspection PyUnboundLocalVariable
-        jour_sem_mois_start = max(mois[-1], key=lambda jour: jour[0])[1]
+        jour_sem_mois_start = _modulo_plus_valeur(max(mois[-1], key=lambda jour: jour[0])[1], delta=1, base=7)[0]
 
 
 def annee(annee: int):
@@ -155,8 +151,8 @@ def annee(annee: int):
     return Annee(annee, [
         Mois(NomMois(mois),
              [
-                 Semaine(sem, [Jour(j[0], JourSemaine(j[1]), j[3], mois) for j in calendrier if j[2] == sem])
-                 for sem in set(j[2] for j in calendrier if j[3] == mois and j[4] == annee)
+                 Semaine(sem[0][2], [Jour(j[0], JourSemaine(j[1]), j[3], mois) for j in sem])
+                 for sem in calendrier[mois]
              ], annee)
         for mois in range(12)
     ])

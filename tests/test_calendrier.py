@@ -1,6 +1,6 @@
 import unittest
 
-from calendrier.generateur_dates import JourSemaine, Semaine, Mois, Annee, generateur_mois, _mois_plus_valeur, \
+from calendrier.generateur_dates import generateur_mois, _modulo_plus_valeur, \
     _mois_annee_plus_valeur
 
 
@@ -12,17 +12,26 @@ class TestCalendrierMethods(unittest.TestCase):
         pass
 
     def test_arithmetique_mois(self):
-        valeur = _mois_plus_valeur(0, -1)
-        self.assertEqual(11, valeur)
+        valeur = _modulo_plus_valeur(0, -25, 12)
+        self.assertEqual((11, -3), valeur)
 
-        valeur = _mois_plus_valeur(0, 1)
-        self.assertEqual(1, valeur)
+        valeur = _modulo_plus_valeur(0, 1, 12)
+        self.assertEqual((1, 0), valeur)
 
-        valeur = _mois_plus_valeur(0, -15)
-        self.assertEqual(9, valeur)
+        valeur = _modulo_plus_valeur(0, -15, 12)
+        self.assertEqual((9, -2), valeur)
 
-        valeur = _mois_plus_valeur(1, 14)
-        self.assertEqual(3, valeur)
+        valeur = _modulo_plus_valeur(1, 14, 12)
+        self.assertEqual((3, 1), valeur)
+
+        valeur = _modulo_plus_valeur(5, 11, 7)
+        self.assertEqual((2, 2), valeur)
+
+        valeur = _modulo_plus_valeur(5, 14, 7)
+        self.assertEqual((5, 2), valeur)
+
+        valeur = _modulo_plus_valeur(5, -12, 7)
+        self.assertEqual((0, -1), valeur)
 
 
     def test_arithmetique_mois_annee(self):
@@ -41,5 +50,5 @@ class TestCalendrierMethods(unittest.TestCase):
 
     def test_mois(self):
         mois = [j for j in generateur_mois(2, 2020, 6)]
-        self.assertEqual((1, 6, 0, 2, 2020), mois[6])
-        self.assertEqual((31, 1, 5, 2, 2020), mois[36])
+        self.assertEqual((1, 6, 0, 2, 2020), mois[0][6])
+        self.assertEqual((31, 1, 5, 2, 2020), mois[5][1])
