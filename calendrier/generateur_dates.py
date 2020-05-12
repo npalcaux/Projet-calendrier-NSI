@@ -83,18 +83,24 @@ def generateur_mois(mois: int, annee: int, jou_sem_start: int = 0, generateur_jo
     semaine: List[Tuple] = []
     for j in range(jou_sem_start):
         jour_sem, no_sem = next(generateur_jours_semaine)
-        yield jours_mois_precedent - jou_sem_start + j + 1, jour_sem, no_sem, mois_precedent, annee_precedent
+        semaine.append((jours_mois_precedent - jou_sem_start + j + 1, jour_sem, no_sem, mois_precedent, annee_precedent))
 
-    nombre_jours = jours_mois
-    for jour in range(nombre_jours):
+    for jour in range(jours_mois):
         jour_semaine, no_semaine = next(generateur_jours_semaine)
-        yield jour + 1, jour_semaine, no_semaine, mois, annee
+        semaine.append((jour + 1, jour_semaine, no_semaine, mois, annee))
+        if jour_semaine == 6:
+            yield semaine
+            # s'il en restent des jours dans le mois on ajoute une semaine
+            if jour < jours_mois-1:
+                semaine = []
 
     mois_suivant, annee_suivant = _mois_annee_plus_valeur(mois, annee, 1)
     # noinspection PyUnboundLocalVariable
     for j in range(7 - jour_semaine - 1):
         jour_sem, no_sem = next(generateur_jours_semaine)
-        yield j + 1, jour_sem, no_sem-1, mois_suivant, annee_suivant
+        semaine.append((j + 1, jour_sem, no_sem-1, mois_suivant, annee_suivant))
+
+    yield semaine
 
 
 class Jour:
@@ -136,11 +142,11 @@ def __calculer_jour_semaine_1er_janv(annee: int):
 def generateur_annee(annee) -> Generator[Tuple, None, None]:
     jour_sem_mois_start = __calculer_jour_semaine_1er_janv(annee)
     gen_jour_sem = generateur_jour_semaine()
-    for mois in range(12):
-        for jour in generateur_mois(mois, annee, jour_sem_mois_start, gen_jour_sem):
-            yield jour
+    for no_mois in range(12):
+        mois = [semaine for semaine in generateur_mois(no_mois, annee, jour_sem_mois_start, gen_jour_sem)]
+        yield mois
         # noinspection PyUnboundLocalVariable
-        jour_sem_mois_start = jour[1] - jour[0] + 1 if jour[3] > mois else jour[1] + 1
+        jour_sem_mois_start = max(mois[-1], key=lambda jour: jour[0])[1]
 
 
 def annee(annee: int):
