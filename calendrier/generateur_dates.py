@@ -116,7 +116,7 @@ def generateur_mois(mois: int, annee: int,
         mois_suivant, annee_suivant = _mois_annee_plus_valeur(mois, annee, 1)
         for j in range(6 - jour_semaine):
             jour_sem, no_sem = next(generateur_jours_semaine)
-            semaine.append((j + 1, jour_sem, no_sem-1, mois_suivant, annee_suivant))
+            semaine.append((j + 1, jour_sem, no_sem, mois_suivant, annee_suivant))
         yield semaine
 
 
