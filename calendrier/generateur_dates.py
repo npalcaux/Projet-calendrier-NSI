@@ -35,9 +35,30 @@ class NomMois(Enum):
     NOVEMBRE = 10
     DECEMBRE = 11
 
+    def __add__(self, other: int):
+        return _mois_plus_valeur(self.value, other)
+
+def _mois_plus_valeur(mois: int, delta: int):
+        mois_delta = mois + delta
+        if mois_delta < 0:
+            return mois_delta % 12
+        else:
+            return mois_delta % 12
+
+def _mois_annee_plus_valeur(mois: int, annee: int, delta_mois: int):
+        mois_delta = mois + delta_mois
+        if mois_delta < 0:
+            return mois_delta % 12, annee - abs(mois_delta // 12)
+        else:
+            return mois_delta % 12, annee + mois_delta // 12
+
 
 def __calcul_jours_mois(numero_mois0: int, annee: int) -> int:
-    nummero_mois = numero_mois0 + 1
+    if numero_mois0 >= 0:
+        nummero_mois = numero_mois0 + 1
+    else:
+        nummero_mois = 12 - numero_mois0 + 1
+
     if nummero_mois in (1, 3, 5, 7, 8, 10, 12):
         return 31
     elif nummero_mois == 2:
@@ -46,7 +67,7 @@ def __calcul_jours_mois(numero_mois0: int, annee: int) -> int:
         return 30
 
 
-def generateur_jour_semaine() -> Generator[int, None, None]:
+def generateur_jour_semaine() -> Generator[Tuple, None, None]:
     no_semaine = 0
     while True:
         for i in range(7):
@@ -54,23 +75,27 @@ def generateur_jour_semaine() -> Generator[int, None, None]:
         no_semaine = no_semaine + 1
 
 
-def generateur_calendrier(annee: int, jou_sem_start: int) -> Generator[Tuple, None, None]:
-    jour_semaine_gen = generateur_jour_semaine()
+def generateur_mois(mois: int, annee: int, jou_sem_start: int = 0, generateur_jours_semaine: Generator[Tuple, None, None] = generateur_jour_semaine()):
+    jours_mois = __calcul_jours_mois(mois, annee)
 
+    mois_precedent, annee_precedent = _mois_annee_plus_valeur(mois, annee, -1)
+    jours_mois_precedent = __calcul_jours_mois(mois_precedent, annee)
+    semaine: List[Tuple] = []
     for j in range(jou_sem_start):
-        jour_sem, no_sem = next(jour_semaine_gen)
-        yield 31 - jou_sem_start + j+1, jour_sem, no_sem, 11, annee-1
+        jour_sem, no_sem = next(generateur_jours_semaine)
+        yield jours_mois_precedent - jou_sem_start + j + 1, jour_sem, no_sem, mois_precedent, annee_precedent
 
-    for mois_courrante in range(12):
-        nombre_jours = __calcul_jours_mois(mois_courrante, annee)
-        for jour in range(nombre_jours):
-            jour_semaine, no_semaine = next(jour_semaine_gen)
-            yield jour+1, jour_semaine, no_semaine, mois_courrante, annee
+    nombre_jours = jours_mois
+    for jour in range(nombre_jours):
+        jour_semaine, no_semaine = next(generateur_jours_semaine)
+        yield jour + 1, jour_semaine, no_semaine, mois, annee
 
+    mois_suivant, annee_suivant = _mois_annee_plus_valeur(mois, annee, 1)
     # noinspection PyUnboundLocalVariable
     for j in range(7 - jour_semaine - 1):
-        jour_sem, no_sem = next(jour_semaine_gen)
-        yield j + 1, jour_sem, no_sem, 0, annee + 1
+        jour_sem, no_sem = next(generateur_jours_semaine)
+        yield j + 1, jour_sem, no_sem-1, mois_suivant, annee_suivant
+
 
 class Jour:
     def __init__(self, jour_mois, jour_semaine: JourSemaine, mois: int, mois_appartenance: int):
@@ -108,10 +133,18 @@ def __calculer_jour_semaine_1er_janv(annee: int):
     d = date(annee, 1, 1)
     return d.weekday()
 
+def generateur_annee(annee) -> Generator[Tuple, None, None]:
+    jour_sem_mois_start = __calculer_jour_semaine_1er_janv(annee)
+    gen_jour_sem = generateur_jour_semaine()
+    for mois in range(12):
+        for jour in generateur_mois(mois, annee, jour_sem_mois_start, gen_jour_sem):
+            yield jour
+        # noinspection PyUnboundLocalVariable
+        jour_sem_mois_start = jour[1] - jour[0] + 1 if jour[3] > mois else jour[1] + 1
+
 
 def annee(annee: int):
-    jour_semaine_1er_janvier = __calculer_jour_semaine_1er_janv(annee)
-    calendrier = [jour for jour in generateur_calendrier(annee, jour_semaine_1er_janvier)]
+    calendrier = [jour for jour in generateur_annee(annee)]
 
     return Annee(annee, [
         Mois(NomMois(mois),
