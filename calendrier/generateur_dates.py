@@ -49,7 +49,7 @@ def _mois_annee_plus_valeur(mois: int, annee: int, delta_mois: int):
     return valeur[0], annee + valeur[1]
 
 
-def _jour_plus(jour: int, delta: int):
+def _jour_plus(jour: int, delta: int = 1):
     return _modulo_plus_valeur(jour, delta=delta, base=7)[0]
 
 
@@ -74,8 +74,7 @@ def generateur_jour_semaine() -> Generator[int, None, None]:
 
 
 def generateur_mois(mois: int, annee: int,
-                    jou_sem_start: int = 0,
-                    generateur_jours_semaine=generateur_jour_semaine()) -> List[List[Tuple[int]]]:
+                    jour_sem_1er_du_mois: int = 0) -> List[List[Tuple[int]]]:
     """
     Le "coeur" de notre systeme de generation de dates.
      - permet de générer les semaines d'un mois/année donné à partir de son jour de debut et en
@@ -84,26 +83,26 @@ def generateur_mois(mois: int, annee: int,
 
     :param mois: le n° de mois (pour simplifier l'agorithme les mois sont numerotées de 0 à 11)
     :param annee: l'année (permet de calculer le nombre des jour dans le mois surtout pour le mois de fevrier)
-    :param jou_sem_start: jour de la semaine avec laquelle commence le mois (ex. un Mardi)
+    :param jour_sem_1er_du_mois: jour de la semaine avec laquelle commence le mois (ex. un Mardi)
     :param generateur_jours_semaine: générateur de jours/numeros de semaine - permet d'utiliser un générateur unique pour l'anée afin de numeroter les semaines si besoin
     :return:
     """
     liste_semaines: List[List[Tuple[int]]] = []
     semaine: List[Tuple] = []
-
+    jour_semaine = 0
     # on cherche les jours de la semaine precedente si le mois ne commence pas un Lundi
-    if jou_sem_start:
+    if jour_sem_1er_du_mois:
         mois_precedent, annee_precedent = _mois_annee_plus_valeur(mois, annee, -1)
         jours_mois_precedent = __calcul_jours_mois(mois_precedent, annee)
-        for j in range(jou_sem_start):
-            jour_sem = next(generateur_jours_semaine)
-            semaine.append((jours_mois_precedent - jou_sem_start + j + 1, jour_sem, mois_precedent, annee_precedent))
+        for j in range(jour_sem_1er_du_mois):
+            semaine.append((jours_mois_precedent - jour_sem_1er_du_mois + j + 1, jour_semaine, mois_precedent, annee_precedent))
+            jour_semaine = _jour_plus(jour_semaine)
 
     jours_mois = __calcul_jours_mois(mois, annee)
     for jour in range(jours_mois):
-        jour_semaine = next(generateur_jours_semaine)
         semaine.append((jour + 1, jour_semaine, mois, annee))
-        if jour_semaine == 6:
+        jour_semaine = _jour_plus(jour_semaine)
+        if jour_semaine == 0:
             # s'il en restent des jours dans le mois on ajoute une semaine
             if jour < jours_mois:
                 liste_semaines.append(semaine)
@@ -111,11 +110,11 @@ def generateur_mois(mois: int, annee: int,
 
     # noinspection PyUnboundLocalVariable
     # completer la semaine si le mois ne se termine pas par un Dimanche
-    if jour_semaine < 6:
+    if jour_semaine > 0:
         mois_suivant, annee_suivant = _mois_annee_plus_valeur(mois, annee, 1)
-        for j in range(6 - jour_semaine):
-            jour_sem = next(generateur_jours_semaine)
-            semaine.append((j + 1, jour_sem, mois_suivant, annee_suivant))
+        for j in range(7 - jour_semaine):
+            semaine.append((j + 1, jour_semaine, mois_suivant, annee_suivant))
+            jour_semaine = _jour_plus(jour_semaine)
         liste_semaines.append(semaine)
 
     return liste_semaines
@@ -160,10 +159,9 @@ def __calculer_jour_semaine_1er_janv(annee: int):
 
 def generateur_annee(annee) -> List:
     jour_sem_mois_start = __calculer_jour_semaine_1er_janv(annee)
-    gen_jour_sem = generateur_jour_semaine()
     mois_annee = []
     for no_mois in range(12):
-        mois = generateur_mois(no_mois, annee, jour_sem_mois_start, gen_jour_sem)
+        mois = generateur_mois(no_mois, annee, jour_sem_mois_start)
         mois_annee.append(mois)
 
         dernier_jour_mois = max(mois[-1], key=lambda jour: jour[0])
