@@ -26,7 +26,7 @@ from calendrier.outils_dessin import \
 
 def generer_images_mois_pour_annee(annee: Annee):
     liste_obj_graphiques_mois = [
-        ObjetGraphiqueMois(mois, True, couleur_cadre_jour=Couleur.CYAN, utiliser_image_fond=True) for mois in annee.liste_mois
+        ObjetGraphiqueMois(mois, True, couleur_cadre_jour=Couleur.CYAN, utiliser_image_fond=True) for mois in annee.mois
     ]
 
     for mois_geo in liste_obj_graphiques_mois:
@@ -38,13 +38,13 @@ def generer_images_mois_pour_annee(annee: Annee):
 
 def generer_image_annee(annee: Annee):
     liste_obj_graphiques_mois = [
-        ObjetGraphiqueMois(mois, False) for mois in annee.liste_mois
+        ObjetGraphiqueMois(mois, False) for mois in annee.mois
     ]
 
     taille_max_mois = max(mois.taille for mois in liste_obj_graphiques_mois)
 
     liste_obj_graphiques_mois = [
-        ObjetGraphiqueMois(mois, False, taille_forcee=taille_max_mois) for mois in annee.liste_mois
+        ObjetGraphiqueMois(mois, False, taille_forcee=taille_max_mois) for mois in annee.mois
     ]
 
     taille_texte = calculer_taille_texte(str(annee.annee), POLICE_NOM_MOIS)

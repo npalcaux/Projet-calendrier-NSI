@@ -1,6 +1,6 @@
 from datetime import date
 from enum import Enum, unique
-from typing import List, Tuple, Generator
+from typing import List, Tuple
 
 
 @unique
@@ -35,6 +35,7 @@ class NomMois(Enum):
     NOVEMBRE = 10
     DECEMBRE = 11
 
+
 class Jour:
     def __init__(self, jour_mois, jour_semaine: JourSemaine, mois: int, mois_appartenance: int):
         self.jour_mois = jour_mois
@@ -50,9 +51,8 @@ class Jour:
 
 
 class Semaine:
-    def __init__(self, no_semaine, jours: List[Jour] = None):
+    def __init__(self, jours: List[Jour] = None):
         self.jours = jours if jours else []
-        self.no_semaine = no_semaine
 
 
 class Mois:
@@ -64,7 +64,7 @@ class Mois:
 
 class Annee:
     def __init__(self, annee, mois: List[Mois] = None):
-        self.liste_mois = mois if mois else []
+        self.mois = mois if mois else []
         self.annee = annee
 
 
@@ -176,6 +176,6 @@ def annee(annee: int) -> Annee:
 def mois(mois, annee, list_semaines_mois: List[List[Tuple[int]]]) -> Mois:
     return Mois(NomMois(mois),
                 [
-                    Semaine(sem[0][2], [Jour(j[0], JourSemaine(j[1]), j[2], mois) for j in sem])
+                    Semaine([Jour(j[0], JourSemaine(j[1]), j[2], mois) for j in sem])
                     for sem in list_semaines_mois
                 ], annee)
