@@ -7,7 +7,7 @@ from calendrier.constantes import Couleur
 
 from calendrier.outils_dessin import dessiner_texte, Point, Dimensions, calculer_taille_texte, AlignementHorizontal, \
     AlignementVertical
-from calendrier.generateur_dates import Jour, Mois, Semaine
+from calendrier.generateur_dates import Jour, Mois, Semaine, JourSemaine
 
 
 class ObjetGraphique(ABC):
@@ -94,7 +94,7 @@ class ObjetGraphiqueJour(ObjetGraphiqueTexte):
             police=CONST.POLICE_JOUR,
             couleur_cadre=couleur_cadre,
             couleur_fond=couleur_fond,
-            couleur_texte=Couleur.ROUGE if jour.est_dimanche() else CONST.COULEUR_PAR_DEFAUT_TEXTE,
+            couleur_texte=Couleur.ROUGE if jour.jour_semaine == JourSemaine.DIMANCHE else CONST.COULEUR_PAR_DEFAUT_TEXTE,
             alignement_horizontal=AlignementHorizontal.CENTRE,
             alignement_vertical=AlignementVertical.CENTRE
         )
@@ -110,7 +110,7 @@ class ObjetGraphiqueJour(ObjetGraphiqueTexte):
 
         # On demande à PIL d'écrire le chiffre correspondant au jour du mois passé en paramètres sur l'image au point p.
         # Rmq: Nous transformons préalablement le point en Tuple car la librairie PIL ne comprends pas nos objets de type Point
-        if self.jour.etrangere():
+        if self.jour.jour_d_un_autre_mois():
             self.couleur_texte = Couleur.GRIS_CLAIR
         super().dessiner(drawer, origine)
 

@@ -40,21 +40,18 @@ class Jour:
     def __init__(self, jour_mois, jour_semaine: JourSemaine, semaine: 'Semaine', mois: NomMois = None, annee: int = None):
         self.jour_mois = jour_mois
         self.jour_semaine = jour_semaine
-        self.mois = mois if mois else semaine.mois.nom_mois
-        self.semaine = semaine
-        self.annee = annee if annee else semaine.mois.annee
+        self.__mois = mois if mois else semaine._mois.nom_mois
+        self.__semaine = semaine
+        self.annee = annee if annee else semaine._mois.annee
 
-    def est_dimanche(self):
-        return self.jour_semaine == JourSemaine.DIMANCHE
-
-    def etrangere(self) -> bool:
-        return self.semaine.mois.nom_mois != self.mois
+    def jour_d_un_autre_mois(self) -> bool:
+        return self.__semaine._mois.nom_mois != self.__mois
 
 
 class Semaine:
     def __init__(self, mois:'Mois'):
         self.jours: List[Jour] = []
-        self.mois = mois
+        self._mois = mois
 
 
 class Mois:
@@ -167,5 +164,5 @@ def _generateur_annee(annee) -> List:
 
 
 def annee(annee: int) -> Annee:
-    calendrier = _generateur_annee(annee)
-    return Annee(annee, calendrier)
+    mois_annee = _generateur_annee(annee)
+    return Annee(annee, mois_annee)
