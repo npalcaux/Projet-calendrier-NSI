@@ -37,23 +37,24 @@ class NomMois(Enum):
 
 
 class Jour:
-    def __init__(self, jour_mois, jour_semaine: JourSemaine, mois: NomMois, mois_appartenance: NomMois, annee: int):
+    def __init__(self, jour_mois, jour_semaine: JourSemaine, semaine: 'Semaine', mois: NomMois = None, annee: int = None):
         self.jour_mois = jour_mois
         self.jour_semaine = jour_semaine
-        self.mois = mois
-        self.mois_appartenance = mois_appartenance
-        self.annee = annee
+        self.mois = mois if mois else semaine.mois.nom_mois
+        self.semaine = semaine
+        self.annee = annee if annee else semaine.mois.annee
 
     def est_dimanche(self):
         return self.jour_semaine == JourSemaine.DIMANCHE
 
     def etrangere(self) -> bool:
-        return self.mois != self.mois_appartenance
+        return self.semaine.mois.nom_mois != self.mois
 
 
 class Semaine:
-    def __init__(self, jours: List[Jour] = None):
-        self.jours = jours if jours else []
+    def __init__(self, mois:'Mois'):
+        self.jours: List[Jour] = []
+        self.mois = mois
 
 
 class Mois:
@@ -117,23 +118,23 @@ def _generateur_mois(nom_mois: NomMois, annee: int,
     """
     mois: Mois = Mois(nom_mois, annee)
     jour_semaine = JourSemaine.DIMANCHE
-    semaine = Semaine()
+    semaine = Semaine(mois)
     # on demarre la semaine avec les jours de la semaine precedente si le mois ne commence pas un Lundi
     if jour_sem_1er_du_mois != JourSemaine.LUNDI:
         mois_precedent, annee_precedent = _mois_annee_plus_valeur(nom_mois, annee, -1)
         jours_mois_precedent = __calcul_jours_mois(mois_precedent, annee)
         for j in range(jours_mois_precedent - jour_sem_1er_du_mois.value + 1, jours_mois_precedent+1):
             jour_semaine = jour_suivant(jour_semaine)
-            semaine.jours.append(Jour(j, jour_semaine, nom_mois, mois_precedent, annee_precedent))
+            semaine.jours.append(Jour(j, jour_semaine, semaine, mois_precedent, annee_precedent))
 
     # on ajoute les jours du mois
     jours_mois = __calcul_jours_mois(nom_mois, annee)
     for jour_mois in range(jours_mois):
         jour_semaine = jour_suivant(jour_semaine)
-        semaine.jours.append(Jour(jour_mois + 1, jour_semaine, nom_mois, nom_mois, annee))
+        semaine.jours.append(Jour(jour_mois + 1, jour_semaine, semaine))
         if jour_semaine == JourSemaine.DIMANCHE:
             mois.semaines.append(semaine)
-            semaine = Semaine()
+            semaine = Semaine(mois)
 
     mois.dernier_jour_mois = jour_semaine
     mois.semaines.append(semaine)
@@ -143,7 +144,7 @@ def _generateur_mois(nom_mois: NomMois, annee: int,
         mois_suivant, annee_suivant = _mois_annee_plus_valeur(nom_mois, annee, 1)
         for j in range(6 - jour_semaine.value):
             jour_semaine = jour_suivant(jour_semaine)
-            semaine.jours.append(Jour(j + 1, jour_semaine, nom_mois, mois_suivant, annee_suivant))
+            semaine.jours.append(Jour(j + 1, jour_semaine, semaine, mois_suivant, annee_suivant))
 
     return mois
 
@@ -168,11 +169,3 @@ def _generateur_annee(annee) -> List:
 def annee(annee: int) -> Annee:
     calendrier = _generateur_annee(annee)
     return Annee(annee, calendrier)
-
-
-def mois(mois, annee, list_semaines_mois: List[List[Tuple[int]]]) -> Mois:
-    return Mois(NomMois(mois),
-                [
-                    Semaine([Jour(j[0], JourSemaine(j[1]), j[2], mois) for j in sem])
-                    for sem in list_semaines_mois
-                ], annee)
