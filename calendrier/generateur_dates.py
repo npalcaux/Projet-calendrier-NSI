@@ -40,12 +40,12 @@ class Jour:
     def __init__(self, jour_mois, jour_semaine: JourSemaine, semaine: 'Semaine', mois: NomMois = None, annee: int = None):
         self.jour_mois = jour_mois
         self.jour_semaine = jour_semaine
-        self.__mois = mois if mois else semaine._mois.nom_mois
+        self._mois = mois if mois else semaine._mois.nom_mois
         self.__semaine = semaine
-        self.annee = annee if annee else semaine._mois.annee
+        self._annee = annee if annee else semaine._mois.annee
 
     def jour_d_un_autre_mois(self) -> bool:
-        return self.__semaine._mois.nom_mois != self.__mois
+        return self.__semaine._mois.nom_mois != self._mois
 
 
 class Semaine:

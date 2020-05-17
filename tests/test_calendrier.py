@@ -1,7 +1,7 @@
 import unittest
 
 from calendrier.generateur_dates import _generateur_mois, _modulo_plus_valeur, \
-    _mois_annee_plus_valeur
+    _mois_annee_plus_valeur, NomMois, JourSemaine
 
 
 class TestCalendrierMethods(unittest.TestCase):
@@ -35,20 +35,22 @@ class TestCalendrierMethods(unittest.TestCase):
 
 
     def test_arithmetique_mois_annee(self):
-        valeur = _mois_annee_plus_valeur(0, 2020, -1)
-        self.assertEqual((11, 2019), valeur)
+        valeur = _mois_annee_plus_valeur(NomMois.JANVIER, 2020, -1)
+        self.assertEqual((NomMois.DECEMBRE, 2019), valeur)
 
-        valeur = _mois_annee_plus_valeur(0, 2020, 1)
-        self.assertEqual((1, 2020), valeur)
+        valeur = _mois_annee_plus_valeur(NomMois.JANVIER, 2020, 1)
+        self.assertEqual((NomMois.FEVRIER, 2020), valeur)
 
-        valeur = _mois_annee_plus_valeur(0, 2020, -15)
-        self.assertEqual((9, 2018), valeur)
+        valeur = _mois_annee_plus_valeur(NomMois.JANVIER, 2020, -15)
+        self.assertEqual((NomMois.OCTOBRE, 2018), valeur)
 
-        valeur = _mois_annee_plus_valeur(1, 2020, 14)
-        self.assertEqual((3, 2021), valeur)
+        valeur = _mois_annee_plus_valeur(NomMois.FEVRIER, 2020, 14)
+        self.assertEqual((NomMois.AVRIL, 2021), valeur)
 
 
     def test_mois(self):
-        mois = [j for j in _generateur_mois(2, 2020, 6)]
-        self.assertEqual((1, 6, 2, 2020), mois[0][6])
-        self.assertEqual((31, 1, 2, 2020), mois[5][1])
+        mois = _generateur_mois(NomMois.MARS, 2020, JourSemaine.DIMANCHE)
+        jour = mois.semaines[0].jours[6]
+        self.assertEqual((1, JourSemaine.DIMANCHE, NomMois.MARS, 2020), (jour.jour_mois, jour.jour_semaine, jour._mois, jour._annee))
+        jour = mois.semaines[5].jours[1]
+        self.assertEqual((31, JourSemaine.MARDI, NomMois.MARS, 2020), (jour.jour_mois, jour.jour_semaine, jour._mois, jour._annee))
