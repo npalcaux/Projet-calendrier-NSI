@@ -7,7 +7,7 @@ from calendrier.constantes import Couleur
 
 from calendrier.outils_dessin import dessiner_texte, Point, Dimensions, calculer_taille_texte, AlignementHorizontal, \
     AlignementVertical
-from calendrier.generateur_dates import Jour, Mois, Semaine
+from calendrier.generateur_dates import Jour, Mois, Semaine, JourSemaine
 
 
 class ObjetGraphique(ABC):
@@ -94,7 +94,7 @@ class ObjetGraphiqueJour(ObjetGraphiqueTexte):
             police=CONST.POLICE_JOUR,
             couleur_cadre=couleur_cadre,
             couleur_fond=couleur_fond,
-            couleur_texte=Couleur.ROUGE if jour.est_dimanche() else CONST.COULEUR_PAR_DEFAUT_TEXTE,
+            couleur_texte=Couleur.ROUGE if jour.jour_semaine == JourSemaine.DIMANCHE else CONST.COULEUR_PAR_DEFAUT_TEXTE,
             alignement_horizontal=AlignementHorizontal.CENTRE,
             alignement_vertical=AlignementVertical.CENTRE
         )
@@ -110,7 +110,7 @@ class ObjetGraphiqueJour(ObjetGraphiqueTexte):
 
         # On demande à PIL d'écrire le chiffre correspondant au jour du mois passé en paramètres sur l'image au point p.
         # Rmq: Nous transformons préalablement le point en Tuple car la librairie PIL ne comprends pas nos objets de type Point
-        if self.jour.etrangere():
+        if self.jour.jour_d_un_autre_mois():
             self.couleur_texte = Couleur.GRIS_CLAIR
         super().dessiner(drawer, origine)
 
@@ -188,7 +188,7 @@ class ObjetGraphiqueMois(ObjetGraphique):
         self.__dessiner_cadre_mois(origine0, drawer)
 
         origine = origine0 + Dimensions(self.epaisseur_cadre_mois, self.epaisseur_cadre_mois)
-        self.__dessiner_entete_nom_mois(origine, craion=drawer)
+        self.__dessiner_entete_nom_mois(origine, crayon=drawer)
 
         origine_separateur = origine.deplacer_y(self.taille_entete_nom)
         self.__dessiner_separateur(origine_separateur, self.taille_entete_nom.longueur, drawer)
@@ -202,15 +202,15 @@ class ObjetGraphiqueMois(ObjetGraphique):
 
         self.__dessiner_semaines(origine_zone_semaines, drawer)
 
-    def __dessiner_entete_nom_mois(self, origine: Point, craion: ImageDraw):
+    def __dessiner_entete_nom_mois(self, origine: Point, crayon: ImageDraw):
         """
         Dessine l'en-tête du mois
 
         :param origine: le point d'insértion de l'en-tête
-        :param craion: l'outil de dessin
+        :param crayon: l'outil de dessin
         :param couleur_titre: la couleur du texte du nom de mois
         """
-        craion.rectangle(
+        crayon.rectangle(
             (origine.to_tuple(), origine.deplacer(self.taille_entete_nom).to_tuple()),
             fill=self.couleur_fond_entete.value
         )
@@ -221,10 +221,10 @@ class ObjetGraphiqueMois(ObjetGraphique):
             pt_ins_annee_mois = (
                 origine.x + self.taille_entete_nom.longueur - taille_annee_mois.longueur, origine.y
             )
-            craion.text(pt_ins_annee_mois, annee_str, fill=self.couleur_titre.value, font=CONST.POLICE_ANNEE_ENTETE_MOIS)
+            crayon.text(pt_ins_annee_mois, annee_str, fill=self.couleur_titre.value, font=CONST.POLICE_ANNEE_ENTETE_MOIS)
 
         # création d’un objet 'dessin' qui permet de dessiner sur l’image
-        dessiner_texte(craion, self.nom_mois, CONST.POLICE_NOM_MOIS,
+        dessiner_texte(crayon, self.nom_mois, CONST.POLICE_NOM_MOIS,
                        self.taille_entete_nom,
                        origine,
                        self.couleur_titre,
