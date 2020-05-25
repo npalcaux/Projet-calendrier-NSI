@@ -73,8 +73,8 @@ def generer_image_annee(annee: Annee):
 
             taille_rangee = taille_rangee.elargir(mois_geo.taille)
 
-            origine_mois.x = taille_rangee.largeur
-        origine_mois = origine_mois.deplacer_y(taille_rangee.hauteur)
+            origine_mois.x = taille_rangee.longueur
+        origine_mois = origine_mois.deplacer_y(taille_rangee.largeur)
         origine_mois.x = 0
 
     sauvegarde_image(canevas, fichier=os.path.join("mois_calendrier", f"{annee.annee}.jpeg"))

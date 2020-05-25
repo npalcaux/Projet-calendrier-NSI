@@ -163,11 +163,11 @@ class ObjetGraphiqueMois(ObjetGraphique):
         self.taille_entete_lmmjvsd = calculer_taille_texte("L M M J V S D", CONST.POLICE_JOURS_SEMAINE)
 
         largeur_semaine_max = max(
-            max(semaine.taille.largeur for semaine in self.semaines),
-            self.taille_entete_lmmjvsd.largeur
+            max(semaine.taille.longueur for semaine in self.semaines),
+            self.taille_entete_lmmjvsd.longueur
         )
 
-        self.taille_entete_nom = Dimensions(largeur=largeur_semaine_max, hauteur=TAILLE_MAX_TEXTE_NOM_MOIS.hauteur)
+        self.taille_entete_nom = Dimensions(largeur=largeur_semaine_max, hauteur=TAILLE_MAX_TEXTE_NOM_MOIS.largeur)
         self.taille_zone_semaines = Dimensions.empiler_multi([s.taille for s in self.semaines])
 
         self.taille = self.taille_entete_nom.empiler(
@@ -188,10 +188,10 @@ class ObjetGraphiqueMois(ObjetGraphique):
         self.__dessiner_cadre_mois(origine0, drawer)
 
         origine = origine0 + Dimensions(self.epaisseur_cadre_mois, self.epaisseur_cadre_mois)
-        self.__dessiner_entete_nom_mois(origine, craion=drawer)
+        self.__dessiner_entete_nom_mois(origine, crayon=drawer)
 
         origine_separateur = origine.deplacer_y(self.taille_entete_nom)
-        self.__dessiner_separateur(origine_separateur, self.taille_entete_nom.largeur, drawer)
+        self.__dessiner_separateur(origine_separateur, self.taille_entete_nom.longueur, drawer)
 
         origine_lmmjvsd = origine_separateur.deplacer_y(self.epaisseur_separateur)
         self.__dessiner_ligne_lmmjvsd(origine_lmmjvsd, drawer)
@@ -202,15 +202,15 @@ class ObjetGraphiqueMois(ObjetGraphique):
 
         self.__dessiner_semaines(origine_zone_semaines, drawer)
 
-    def __dessiner_entete_nom_mois(self, origine: Point, craion: ImageDraw):
+    def __dessiner_entete_nom_mois(self, origine: Point, crayon: ImageDraw):
         """
         Dessine l'en-tête du mois
 
         :param origine: le point d'insértion de l'en-tête
-        :param craion: l'outil de dessin
+        :param crayon: l'outil de dessin
         :param couleur_titre: la couleur du texte du nom de mois
         """
-        craion.rectangle(
+        crayon.rectangle(
             (origine.to_tuple(), origine.deplacer(self.taille_entete_nom).to_tuple()),
             fill=self.couleur_fond_entete.value
         )
@@ -219,12 +219,12 @@ class ObjetGraphiqueMois(ObjetGraphique):
             annee_str = str(self.donnees.annee)
             taille_annee_mois = calculer_taille_texte(annee_str, police=CONST.POLICE_ANNEE_ENTETE_MOIS)
             pt_ins_annee_mois = (
-                origine.x + self.taille_entete_nom.largeur - taille_annee_mois.largeur, origine.y
+                origine.x + self.taille_entete_nom.longueur - taille_annee_mois.longueur, origine.y
             )
-            craion.text(pt_ins_annee_mois, annee_str, fill=self.couleur_titre.value, font=CONST.POLICE_ANNEE_ENTETE_MOIS)
+            crayon.text(pt_ins_annee_mois, annee_str, fill=self.couleur_titre.value, font=CONST.POLICE_ANNEE_ENTETE_MOIS)
 
         # création d’un objet 'dessin' qui permet de dessiner sur l’image
-        dessiner_texte(craion, self.nom_mois, CONST.POLICE_NOM_MOIS,
+        dessiner_texte(crayon, self.nom_mois, CONST.POLICE_NOM_MOIS,
                        self.taille_entete_nom,
                        origine,
                        self.couleur_titre,
@@ -290,8 +290,8 @@ def _jour_mois_to_string(valeur: int):
 def __taille_max_case_jour() -> Dimensions:
     taille_jours = [calculer_taille_texte(_jour_mois_to_string(valeur), CONST.POLICE_JOUR) for valeur in range(10, 32)]
     return Dimensions(
-        max(taille.largeur for taille in taille_jours),
-        max(taille.hauteur for taille in taille_jours)
+        max(taille.longueur for taille in taille_jours),
+        max(taille.largeur for taille in taille_jours)
     )
 
 

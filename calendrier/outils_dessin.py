@@ -23,11 +23,11 @@ class Point:
         self.y: int = y
 
     def __add__(self, other: 'Dimensions'):
-        return Point(self.x + other.largeur, self.y + other.hauteur)
+        return Point(self.x + other.longueur, self.y + other.largeur)
 
     def deplacer_x(self, other):
         if isinstance(other, Dimensions):
-            valeur = other.largeur
+            valeur = other.longueur
         elif isinstance(other, (int, float)):
             valeur = other
         else:
@@ -37,7 +37,7 @@ class Point:
 
     def deplacer_y(self, other):
         if isinstance(other, Dimensions):
-            valeur = other.hauteur
+            valeur = other.largeur
         elif isinstance(other, (int, float)):
             valeur = other
         else:
@@ -49,7 +49,7 @@ class Point:
         return self.x, self.y
 
     def deplacer(self, d: 'Dimensions'):
-        return Point(self.x + d.largeur, self.y + d.hauteur)
+        return Point(self.x + d.longueur, self.y + d.largeur)
 
 
 class Dimensions:
@@ -61,35 +61,35 @@ class Dimensions:
         return Dimensions(size[0], size[1])
 
     def __init__(self, largeur: int, hauteur: int) -> None:
-        self.largeur: int = largeur
-        self.hauteur: int = hauteur
+        self.longueur: int = largeur
+        self.largeur: int = hauteur
 
     def __mul__(self, other: 'Dimensions'):
-        return Dimensions(self.largeur * other.largeur, self.hauteur * other.hauteur)
+        return Dimensions(self.longueur * other.longueur, self.largeur * other.largeur)
 
     def __add__(self, other: 'Dimensions'):
-        return Dimensions(self.largeur + other.largeur, self.hauteur + other.hauteur)
+        return Dimensions(self.longueur + other.longueur, self.largeur + other.largeur)
 
     def __sub__(self, other: 'Dimensions'):
-        return Dimensions(self.largeur - other.largeur, self.hauteur - other.hauteur)
+        return Dimensions(self.longueur - other.longueur, self.largeur - other.largeur)
 
     def __getitem__(self, item):
-        return self.largeur if item == 0 else self.hauteur
+        return self.longueur if item == 0 else self.largeur
 
     def to_tuple(self):
-        return self.largeur, self.hauteur
+        return self.longueur, self.largeur
 
     def __gt__(self, other):
-        return self.largeur >= other.largeur and self.hauteur >= other.hauteur
+        return self.longueur >= other.longueur and self.largeur >= other.largeur
 
     def __eq__(self, other):
-        return self.largeur == other.largeur and self.hauteur == other.hauteur
+        return self.longueur == other.longueur and self.largeur == other.largeur
 
     @staticmethod
     def __empiler(un: 'Dimensions', autre: 'Dimensions') -> 'Dimensions':
         return Dimensions(
-                max(un.largeur, autre.largeur),
-                un.hauteur + autre.hauteur
+                max(un.longueur, autre.longueur),
+            un.largeur + autre.largeur
             )
 
     def empiler(self, *autres: 'Dimensions') -> 'Dimensions':
@@ -114,9 +114,9 @@ class Dimensions:
         dimenssion_courante = Dimensions(0, 0)
         for autre in autres:
             if isinstance(autre, Dimensions):
-                dimenssion_courante = Dimensions(dimenssion_courante.largeur + autre.largeur, max(dimenssion_courante.hauteur, autre.hauteur))
+                dimenssion_courante = Dimensions(dimenssion_courante.longueur + autre.longueur, max(dimenssion_courante.largeur, autre.largeur))
             else:
-                dimenssion_courante = Dimensions(dimenssion_courante.largeur + autre, dimenssion_courante.hauteur)
+                dimenssion_courante = Dimensions(dimenssion_courante.longueur + autre, dimenssion_courante.largeur)
         return dimenssion_courante
 
 
@@ -132,28 +132,28 @@ class AlignementVertical(Enum):
     HAUT = 1
 
 
-def dessiner_texte(craion: ImageDraw, texte: str, police: ImageFont, taille_fenetre: Dimensions,
+def dessiner_texte(crayon: ImageDraw, texte: str, police: ImageFont, taille_fenetre: Dimensions,
                    origine: Point = Point(0, 0), couleur_texte=COULEUR_PAR_DEFAUT_TEXTE,
                    alignement_horizontal=AlignementHorizontal.GAUCHE, alignement_vertical=AlignementVertical.CENTRE):
 
     taille_texte = calculer_taille_texte(texte, police)
 
     if alignement_horizontal == AlignementHorizontal.DROITE:
-        x = origine.x + taille_fenetre.largeur - taille_texte.largeur
+        x = origine.x + taille_fenetre.longueur - taille_texte.longueur
     elif alignement_horizontal == AlignementHorizontal.CENTRE:
-        x = origine.x + (taille_fenetre.largeur - taille_texte.largeur) // 2
+        x = origine.x + (taille_fenetre.longueur - taille_texte.longueur) // 2
     else:
         x = origine.x
 
     if alignement_vertical == AlignementVertical.BAS:
-        y = origine.y + taille_fenetre.largeur - taille_texte.largeur
+        y = origine.y + taille_fenetre.longueur - taille_texte.longueur
     elif alignement_vertical == AlignementVertical.CENTRE:
-        y = origine.y + (taille_fenetre.hauteur - taille_texte.hauteur) // 2
+        y = origine.y + (taille_fenetre.largeur - taille_texte.largeur) // 2
     else:
         y = origine.y
 
     p = (x, y)
-    craion.text(p, texte, fill=couleur_texte.format_rgb(), font=police)
+    crayon.text(p, texte, fill=couleur_texte.format_rgb(), font=police)
 
 
 def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
