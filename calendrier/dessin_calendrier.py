@@ -11,7 +11,7 @@ from calendrier.constantes import \
     POLICE_NOM_MOIS, Couleur
 # generateur_dates est une mini-bibliothèque de fonctions et des objets
 # pour la manipulation du calendrier adapté aux besoins du projet développés par nos soins.
-from calendrier.generateur_dates import Annee
+from calendrier.generateur_dates import Annee, Mois
 from calendrier.objets_graphiques import ObjetGraphiqueMois
 
 # outils_dessins est une mini-bibliothèque qui contient des outils
@@ -24,16 +24,20 @@ from calendrier.outils_dessin import \
 # RGB pour dire à PIL qu'on veut une image en couleurs.
 
 
+def generer_images_mois(mois: Mois):
+    mois_geo = ObjetGraphiqueMois(
+        mois, True, couleur_cadre_jour=Couleur.CYAN, utiliser_image_fond=True
+    )
+
+    canevas = dessiner_canevas(mois_geo.taille)
+    mois_geo.dessiner(ImageDraw.Draw(canevas), Point(x=0, y=0), canevas=canevas)
+
+    sauvegarde_image(canevas, fichier=os.path.join("mois_calendrier", f"{mois_geo.nom_mois}.jpeg"))
+
+
 def generer_images_mois_pour_annee(annee: Annee):
-    liste_obj_graphiques_mois = [
-        ObjetGraphiqueMois(mois, True, couleur_cadre_jour=Couleur.CYAN, utiliser_image_fond=True) for mois in annee.mois
-    ]
-
-    for mois_geo in liste_obj_graphiques_mois:
-        canevas = dessiner_canevas(mois_geo.taille)
-        mois_geo.dessiner(ImageDraw.Draw(canevas), Point(x=0, y=0), canevas=canevas)
-
-        sauvegarde_image(canevas, fichier=os.path.join("mois_calendrier", f"{mois_geo.nom_mois}.jpeg"))
+    for mois in annee.mois:
+        generer_images_mois(mois)
 
 
 def generer_image_annee(annee: Annee):
@@ -74,5 +78,3 @@ def generer_image_annee(annee: Annee):
         origine_mois.x = 0
 
     sauvegarde_image(canevas, fichier=os.path.join("mois_calendrier", f"{annee.annee}.jpeg"))
-
-
