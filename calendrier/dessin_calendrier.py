@@ -21,10 +21,11 @@ from calendrier.outils_dessin import \
     sauvegarde_image, Point, Dimensions, calculer_taille_texte, dessiner_canevas
 
 
-# RGB pour dire à PIL qu'on veut une image en couleurs.
-
-
 def generer_images_mois(mois: Mois):
+    """
+    auteur: Nicolas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     mois_geo = ObjetGraphiqueMois(
         mois, True, couleur_cadre_jour=Couleur.CYAN, utiliser_image_fond=True
     )
@@ -36,11 +37,19 @@ def generer_images_mois(mois: Mois):
 
 
 def generer_images_mois_pour_annee(annee: Annee):
+    """
+    auteur: Nicolas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     for mois in annee.mois:
         generer_images_mois(mois)
 
 
 def generer_image_annee(annee: Annee):
+    """
+    auteur: Lucas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     liste_obj_graphiques_mois = [
         ObjetGraphiqueMois(mois, False) for mois in annee.mois
     ]

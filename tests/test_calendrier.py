@@ -1,6 +1,6 @@
 import unittest
 
-from calendrier.generateur_dates import _generateur_mois, _modulo_plus_valeur, \
+from calendrier.generateur_dates import _generateur_mois, _division_euclidiene, \
     _mois_annee_plus_valeur, NomMois, JourSemaine
 
 
@@ -12,25 +12,25 @@ class TestCalendrierMethods(unittest.TestCase):
         pass
 
     def test_arithmetique_mois(self):
-        valeur = _modulo_plus_valeur(0, -25, 12)
+        valeur = _division_euclidiene(0-25, 12)
         self.assertEqual((11, -3), valeur)
 
-        valeur = _modulo_plus_valeur(0, 1, 12)
+        valeur = _division_euclidiene(0+1, 12)
         self.assertEqual((1, 0), valeur)
 
-        valeur = _modulo_plus_valeur(0, -15, 12)
+        valeur = _division_euclidiene(0-15, 12)
         self.assertEqual((9, -2), valeur)
 
-        valeur = _modulo_plus_valeur(1, 14, 12)
+        valeur = _division_euclidiene(1+14, 12)
         self.assertEqual((3, 1), valeur)
 
-        valeur = _modulo_plus_valeur(5, 11, 7)
+        valeur = _division_euclidiene(5+11, 7)
         self.assertEqual((2, 2), valeur)
 
-        valeur = _modulo_plus_valeur(5, 14, 7)
+        valeur = _division_euclidiene(5+14, 7)
         self.assertEqual((5, 2), valeur)
 
-        valeur = _modulo_plus_valeur(5, -12, 7)
+        valeur = _division_euclidiene(5 -12, 7)
         self.assertEqual((0, -1), valeur)
 
 

@@ -8,6 +8,8 @@ from calendrier.constantes import COULEUR_PAR_DEFAUT_TEXTE, Couleur
 
 def sauvegarde_image(image: Image, fichier='calendrier.png'):
     """
+    autheur: Lucas
+
     fonction déstinée à sauvegarder une image dans le fichier.
     :param image: image a sauvegarder
     :param fichier: nom du fichier (par défaut est "calendrier.png")
@@ -18,6 +20,9 @@ def sauvegarde_image(image: Image, fichier='calendrier.png'):
 
 
 class Point:
+    """
+    autheur: Nicolas
+    """
     def __init__(self, x, y) -> None:
         self.x: int = x
         self.y: int = y
@@ -54,6 +59,8 @@ class Point:
 
 class Dimensions:
     """
+    autheur: Lucas
+
     Dimensions est un objet qui définie la taille/dimension d'un objet graophique de forme rectangulaire.
     """
     @classmethod
@@ -135,7 +142,11 @@ class AlignementVertical(Enum):
 def dessiner_texte(crayon: ImageDraw, texte: str, police: ImageFont, taille_fenetre: Dimensions,
                    origine: Point = Point(0, 0), couleur_texte=COULEUR_PAR_DEFAUT_TEXTE,
                    alignement_horizontal=AlignementHorizontal.GAUCHE, alignement_vertical=AlignementVertical.CENTRE):
+    """
+    autheur: Nicolas
 
+    Création de l’image au format 'rgb' avec la couleur de fond passé en parametre
+    """
     taille_texte = calculer_taille_texte(texte, police)
 
     if alignement_horizontal == AlignementHorizontal.DROITE:
@@ -158,6 +169,8 @@ def dessiner_texte(crayon: ImageDraw, texte: str, police: ImageFont, taille_fene
 
 def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
     """
+    autheur: Nicolas
+
     Calcule la taille de texte pour une police donnée
     :param texte: le texte dont on veux calculer la taille
     :param police: la police pour laquelle on souhaite calculer la taille du texte
@@ -169,6 +182,8 @@ def calculer_taille_texte(texte: str, police: ImageFont) -> Dimensions:
 
 def dessiner_canevas(taille: Dimensions, CouleurFond: Couleur = Couleur.BLANC) -> Image:
     """
+    autheur: Lucas
+
     Création de l’image au format 'rgb' avec la couleur de fond passé en parametre
     """
     im = Image.new('RGB', taille.to_tuple(), CouleurFond.value)

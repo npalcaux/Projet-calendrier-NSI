@@ -37,6 +37,10 @@ class NomMois(Enum):
 
 
 class Jour:
+    """
+    auteur: Lucas
+    regrouppe les propriétes d'un objet Jour du calendrier
+    """
     def __init__(self, jour_mois, jour_semaine: JourSemaine, semaine: 'Semaine', mois: NomMois = None, annee: int = None):
         self.jour_mois = jour_mois
         self.jour_semaine = jour_semaine
@@ -49,12 +53,20 @@ class Jour:
 
 
 class Semaine:
+    """
+    auteur: Lucas
+    regrouppe les propriétes d'un objet Jour du calendrier
+    """
     def __init__(self, mois:'Mois'):
         self.jours: List[Jour] = []
         self._mois = mois
 
 
 class Mois:
+    """
+    auteur: Nicolas
+    regrouppe les propriétes d'un objet Jour du calendrier
+    """
     def __init__(self, nom_mois: NomMois, annee: int = None):
         self.semaines: List[Semaine] = []
         self.nom_mois = nom_mois
@@ -63,25 +75,40 @@ class Mois:
 
 
 class Annee:
+    """
+    auteur: Lucas
+    regrouppe les propriétes d'un objet Jour du calendrier
+    """
     def __init__(self, annee, mois: List[Mois] = None):
         self.mois = mois if mois else []
         self.annee = annee
 
 
-def _modulo_plus_valeur(valeur_depart: int, delta: int, base: int):
-        mois_delta = valeur_depart + delta
-        if mois_delta < 0:
-            return mois_delta % base, -abs(mois_delta // base)
-        else:
-            return mois_delta % base, mois_delta // base
+def _division_euclidiene(dividend: int, diviseur: int):
+    """
+    auteur: Nicolas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
+    if dividend < 0:
+        return dividend % diviseur, -abs(dividend // diviseur)
+    else:
+        return dividend % diviseur, dividend // diviseur
 
 
 def _mois_annee_plus_valeur(mois: NomMois, annee: int, delta_mois: int) -> Tuple[NomMois, int]:
-    valeur = _modulo_plus_valeur(mois.value, delta_mois, 12)
+    """
+    auteur: Nicolas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
+    valeur = _division_euclidiene(mois.value + delta_mois, 12)
     return NomMois(valeur[0]), annee + valeur[1]
 
 
 def jour_suivant(jour: JourSemaine):
+    """
+    auteur: Lucas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     if jour.value < JourSemaine.DIMANCHE.value:
         return JourSemaine(jour.value + 1)
     else:
@@ -89,6 +116,10 @@ def jour_suivant(jour: JourSemaine):
 
 
 def __calcul_jours_mois(mois: NomMois, annee: int) -> int:
+    """
+    auteur: Lucas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     nummero_mois = mois.value + 1
 
     if nummero_mois in (1, 3, 5, 7, 8, 10, 12):
@@ -102,7 +133,9 @@ def __calcul_jours_mois(mois: NomMois, annee: int) -> int:
 def _generateur_mois(nom_mois: NomMois, annee: int,
                      jour_sem_1er_du_mois: JourSemaine = JourSemaine.LUNDI) -> Mois:
     """
-    Le "coeur" de notre systeme de generation de dates.
+    auteur: Nicolas
+
+    Le "coeur" de notre module de generation de dates.
      - permet de générer les semaines d'un mois/année donné à partir de son jour de debut et en
      s'aidant d'un générateur de jours/numeros de semaine (une fonction qui renvoie à l'infini
      une serie LMMJVSD assortie du numero de la semaine
@@ -147,11 +180,19 @@ def _generateur_mois(nom_mois: NomMois, annee: int,
 
 
 def __calculer_jour_semaine_1er_janv(annee: int) -> JourSemaine:
+    """
+    auteur: Lucas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     d = date(annee, 1, 1)
     return JourSemaine(d.weekday())
 
 
 def _generateur_annee(annee) -> List:
+    """
+    auteur: Lucas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     jour_sem_mois_start = __calculer_jour_semaine_1er_janv(annee)
     mois_annee = []
     for no_mois in NomMois:
@@ -164,5 +205,9 @@ def _generateur_annee(annee) -> List:
 
 
 def annee(annee: int) -> Annee:
+    """
+    auteur: Lucas
+    calcule le reste et le résultat de la division entiere de deux nombres
+    """
     mois_annee = _generateur_annee(annee)
     return Annee(annee, mois_annee)

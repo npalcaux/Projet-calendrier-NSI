@@ -11,6 +11,9 @@ from calendrier.generateur_dates import Jour, Mois, Semaine, JourSemaine
 
 
 class ObjetGraphique(ABC):
+    """
+    autheur: Lucas
+    """
     def __init__(self, data):
         self.donnees = data
 
@@ -20,6 +23,9 @@ class ObjetGraphique(ABC):
 
 
 class ObjetGraphiqueTexte(ObjetGraphique):
+    """
+    autheur: Lucas
+    """
     def __init__(self, texte: str,
                  taille: Dimensions,
                  police: ImageFont,
@@ -83,6 +89,9 @@ class ObjetGraphiqueTexte(ObjetGraphique):
 
 
 class ObjetGraphiqueJour(ObjetGraphiqueTexte):
+    """
+    autheur: Nicolas
+    """
     def __init__(self,
                  jour: Jour,
                  couleur_fond: Couleur = None,
@@ -116,6 +125,9 @@ class ObjetGraphiqueJour(ObjetGraphiqueTexte):
 
 
 class ObjetGraphiqueSemaine(ObjetGraphique):
+    """
+    autheur: Nicolas
+    """
     def __init__(self, semaine: Semaine, couleur_cadre_jour:Couleur = None):
         super().__init__(semaine)
 
@@ -136,6 +148,9 @@ class ObjetGraphiqueSemaine(ObjetGraphique):
 
 
 class ObjetGraphiqueMois(ObjetGraphique):
+    """
+    autheur: Lucas
+    """
     def __init__(self,
                  mois: Mois,
                  inclure_annee: False,
@@ -266,7 +281,7 @@ class ObjetGraphiqueMois(ObjetGraphique):
         image_fond_semaines = back_im.resize(self.taille_zone_semaines.to_tuple())
         canevas.paste(image_fond_semaines, origine.to_tuple())
 
-
+# autheur Lucas
 NOM_MOIS = (
     "JANVIER",
     "FEVRIER",
@@ -282,11 +297,11 @@ NOM_MOIS = (
     "DECEMBRE"
 )
 
-
+# autheur Lucas
 def _jour_mois_to_string(valeur: int):
     return f"{valeur:>2}"
 
-
+# autheur Lucas
 def __taille_max_case_jour() -> Dimensions:
     taille_jours = [calculer_taille_texte(_jour_mois_to_string(valeur), CONST.POLICE_JOUR) for valeur in range(10, 32)]
     return Dimensions(
@@ -294,7 +309,7 @@ def __taille_max_case_jour() -> Dimensions:
         max(taille.largeur for taille in taille_jours)
     )
 
-
+# autheur Nicolas
 def __taille_max_nom_mois():
     return max(calculer_taille_texte(nom, CONST.POLICE_NOM_MOIS) for nom in NOM_MOIS)
 
