@@ -67,7 +67,7 @@ COULEUR_SEPARATEUR_MOIS = Couleur.BLEU
 
 # autheur: Lucas
 TABLEAU_CORRESPONDENCE_MOIS_FOND = [
-    "janvier.jpg", "fevrier.png", "mars.jpg", "janvier.jpg",
-    "janvier.jpg", "janvier.jpg", "janvier.jpg", "janvier.jpg",
-    "janvier.jpg", "janvier.jpg", "janvier.jpg", "decembre.jpg",
+    "janvier.png",   "fevrier.png", "mars.png",     "avril.png",
+    "mai.png",       "juin.png",    "juillet.png",  "aout.png",
+    "septembre.png", "octobre.png", "novembre.png", "decembre.png"
 ]
