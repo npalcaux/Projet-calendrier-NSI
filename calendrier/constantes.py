@@ -26,7 +26,7 @@ TAILLE_POLICE_JOURS_SEMAINE = agrandissement_relatif(pourcentage=10, reference=T
 TAILLE_POLICE_NOM_MOIS = agrandissement_relatif(pourcentage=30, reference=TAILLE_POLICE_JOURS)
 
 TAILLE_POLICE_ANNEE_ENTETE_MOIS = retrecissement_relatif(pourcentage=55, reference=TAILLE_POLICE_JOURS)
-TAILLE_POLICE_ANNEE = agrandissement_relatif(pourcentage=45, reference=TAILLE_POLICE_JOURS)
+TAILLE_POLICE_ANNEE = agrandissement_relatif(pourcentage=80, reference=TAILLE_POLICE_JOURS)
 
 # autheur: Lucas
 POLICE_JOUR = ImageFont.truetype(font='polices/GFSDidotBold.otf', size=TAILLE_POLICE_JOURS)

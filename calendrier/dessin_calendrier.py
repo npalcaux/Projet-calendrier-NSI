@@ -8,17 +8,17 @@ import os
 from PIL import ImageDraw
 
 from calendrier.constantes import \
-    POLICE_NOM_MOIS, Couleur
+    POLICE_NOM_MOIS, Couleur, POLICE_ANNEE
 # generateur_dates est une mini-bibliothèque de fonctions et des objets
 # pour la manipulation du calendrier adapté aux besoins du projet développés par nos soins.
 from calendrier.generateur_dates import Annee, Mois
-from calendrier.objets_graphiques import ObjetGraphiqueMois
+from calendrier.objets_graphiques import ObjetGraphiqueMois, ObjetGraphiqueTexte
 
 # outils_dessins est une mini-bibliothèque qui contient des outils
 # pour dessiner les mois développés par nos soins.
 # les "/" sont pour couper les lignes de code qui sont trop longs
 from calendrier.outils_dessin import \
-    sauvegarde_image, Point, Dimensions, calculer_taille_texte, dessiner_canevas
+    sauvegarde_image, Point, Dimensions, calculer_taille_texte, dessiner_canevas, AlignementHorizontal
 
 
 def generer_images_mois(mois: Mois):
@@ -50,30 +50,34 @@ def generer_image_annee(annee: Annee):
     auteur: Lucas
     calcule le reste et le résultat de la division entiere de deux nombres
     """
+    # une prémiere génération des objetx graphiques de tyoe "mois" dans le but de pouvoir calculer la taille maxomale d'in mois
+    # qui sera forcé sur tous les images des mois autrement les mois auront des tailles differentes
+    # et la mise en page ne sera pas optimale
     liste_obj_graphiques_mois = [
         ObjetGraphiqueMois(mois, False) for mois in annee.mois
     ]
 
     taille_max_mois = max(mois.taille for mois in liste_obj_graphiques_mois)
-
+    #regeneration des objets mois avec la taille maximale
     liste_obj_graphiques_mois = [
         ObjetGraphiqueMois(mois, False, taille_forcee=taille_max_mois) for mois in annee.mois
     ]
 
-    taille_texte = calculer_taille_texte(str(annee.annee), POLICE_NOM_MOIS)
+    taille_texte = calculer_taille_texte(str(annee.annee), POLICE_ANNEE)
+    # calcul de la taille de l'image de l'année (4 mois par ligne)
+    taille_canevas = Dimensions(taille_max_mois.longueur * 4, taille_max_mois.largeur * 3)
 
-    taille_canevas = taille_texte
-    for i in range(3):
-        taille_courante = Dimensions(0, 0)
-        for j in range(4):
-            taille_courante = taille_courante.elargir(liste_obj_graphiques_mois[i+j].taille)
-        taille_canevas = taille_canevas.empiler(taille_courante)
+    texte = ObjetGraphiqueTexte(annee.annee, Dimensions(taille_canevas.longueur, taille_texte.largeur + 100),
+                                POLICE_ANNEE, couleur_fond=Couleur.BLEU_CLAIR, couleur_texte=Couleur.BLEU,
+                                alignement_horizontal=AlignementHorizontal.CENTRE)
+    taille_canevas = taille_canevas.empiler(texte.taille)
 
     canevas = dessiner_canevas(taille_canevas)
-
-    origine_zone_mois = Point(0, 0).deplacer_y(taille_texte)
-    origine_mois = origine_zone_mois
     draw = ImageDraw.Draw(canevas)
+    texte.dessiner(draw, Point(0, 0))
+    origine_zone_mois = Point(0, 0).deplacer_y(texte.taille)
+    origine_mois = origine_zone_mois
+
     for i in range(3):
         taille_rangee = Dimensions(0, 0)
         for j in range(4):

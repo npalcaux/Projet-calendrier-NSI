@@ -26,7 +26,7 @@ class ObjetGraphiqueTexte(ObjetGraphique):
     """
     autheur: Lucas
     """
-    def __init__(self, texte: str,
+    def __init__(self, texte,
                  taille: Dimensions,
                  police: ImageFont,
                  couleur_fond: Couleur = None,
@@ -36,7 +36,7 @@ class ObjetGraphiqueTexte(ObjetGraphique):
                  alignement_vertical=AlignementVertical.CENTRE,
                  epaisseur_cadre=1
                  ):
-        super().__init__(texte)
+        super().__init__(str(texte))
         self.texte = self.donnees
 
         #   Calcule la taille de la case "jour" du calendrier

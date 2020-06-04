@@ -96,7 +96,7 @@ class Dimensions:
     def __empiler(un: 'Dimensions', autre: 'Dimensions') -> 'Dimensions':
         return Dimensions(
                 max(un.longueur, autre.longueur),
-            un.largeur + autre.largeur
+                un.largeur + autre.largeur
             )
 
     def empiler(self, *autres: 'Dimensions') -> 'Dimensions':
