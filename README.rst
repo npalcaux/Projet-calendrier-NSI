@@ -3,6 +3,9 @@ Projet python
 =========================================================
 Calendrier
 ----------
+Bouhahahahah
+
+Bouhaha 2
 
 1. Cahier des charges
 Le cahier des charges comporte plusieurs phases, vous devez entièrement réaliser une
